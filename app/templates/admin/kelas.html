@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  {% include 'admin/head.html' %}
+
+  <!-- DataTables CSS -->
+  <link href="../static/vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet">
+
+  <!-- DataTables Responsive CSS -->
+  <link href="../static/vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet">
+
+</head>
+
+<body>
+
+  <div id="wrapper">
+
+    <!-- NaviFgation -->
+    {% include 'admin/navigation.html' %}
+
+    <!-- Page Content -->
+    <div id="page-wrapper">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-12">
+            <h1 class="page-header">Kelas</h1>
+          </div>
+          <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+        <div class="row">
+          <div class="col-lg-12">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <a data-toggle="modal" data-target="#tambah"><button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span class="glyphicon glyphicon-plus" aria-hidden="true"></span></button></a>
+                <h4 class="modal-title custom_align" id="Heading">Data Kelash</h4>
+              </div>
+              <!-- /.panel-heading -->
+              <div class="panel-body">
+                <table width="100%" class="table table-striped table-bordered table-hover" id="dataTables-example">
+                  {% with messages = get_flashed_messages() %}
+                  {% if messages %}
+                  {% for message in messages %}
+                  <div class="alert alert-info text-center"><span class="glyphicon glyphicon-info-sign"></span>{{message}}</div>
+                  {% endfor %}
+                  {% endif %}
+                  {% endwith %}
+                  <thead>
+                    <tr>
+                      <th>Id</th>
+                      <th>Nama Kelas</th>
+                      <th>Prodi</th>
+                      <th>Mata kuliah</th>
+                      <th>Kuota</th>
+                      <th>Sisa Kuota</th>
+                      <th>Detail</th>
+                      <th>Edit</th>
+                      <th>Hapus</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% if kelas %}
+                    {% for kls in kelas %}
+                    <tr class="odd gradeX">
+                      <td>{{ kls[0] }}</td>
+                      <td>{{ kls[1] }}</td>
+                      <td>{{ kls[4] }}</td>
+                      <td>{{ kls[3] }}</td>
+                      <td>{{ kls[5] }}</td>
+                      <td>{{ kls[6] }}</td>
+                      <td align="center"><a href="#" data-placement="top" data-toggle="tooltip" title="Detail"><button class="btn btn-default btn-xs" data-title="Detail"><span class="glyphicon glyphicon-eye-open"></span></button></a></td>
+                      <td align="center"><p data-placement="top" data-toggle="tooltip" title="Edit"><button class="btn btn-default btn-xs" data-title="Edit" data-toggle="modal" data-target="#edit{{ kls[0] }}"><span class="glyphicon glyphicon-pencil"></span></button></p></td>
+                      <td align="center"><p data-placement="top" data-toggle="tooltip" title="Delete"><button class="btn btn-default btn-xs" data-title="Delete" data-toggle="modal" data-target="#delete{{ kls[0] }}"><span class="glyphicon glyphicon-trash"></span></button></p></td>
+                    </tr>
+                    {% endfor %}
+                    {% else %}
+                    <td colspan="10" style="text-align: center;">Tidak Ada Data</td>
+                    {% endif %}
+                  </tbody>
+
+                </table>
+                <!-- /.table-responsive -->
+              </div>
+              <!-- /.panel-body -->
+            </div>
+            <!-- /.panel -->
+          </div>
+          <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+      </div>
+      <!-- /.container-fluid -->
+
+      {% for kls in kelas %}
+      <div class="modal fade" id="edit{{ kls[0] }}" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+              <h4 class="modal-title custom_align" id="Heading">Edit Data Kelas</h4>
+            </div>
+            <form class="form-horizontal" role="form" action="/admin/edit-kelas" method="POST">
+              <div class="modal-body" style="padding-right: 25px; padding-left: 25px;">
+                <fieldset>
+                  <div class="form-group">
+                    <label class="control-label" for="id">Id</label>
+                    <input id="id" name="id_kls" type="text" placeholder="Id Kelas" class="form-control" value="{{kls[0]}}" readonly>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label" for="namaK">Nama Kelas</label>
+                    <input id="namaK" name="nm_kls" type="text" placeholder="Nama Kelas" class="form-control" value="{{kls[1]}}" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label" for="opsi">Prodi/Makul</label>
+                    <select id="opsi" class="form-control" name="id_mkl" required>
+                      {% for data in prodi_makul %}
+                      {% if data[0] == kls[2] %}
+                      <option value="{{data[0]}}" selected>{{data[1]}}/{{data[2]}}</option>
+                      {% else %}
+                      <option value="{{data[0]}}">{{data[1]}}/{{data[2]}}</option>
+                      {% endif %}
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label" for="kuota">Kuota</label>
+                    <div>
+                      <input id="kuota" name="kuota" type="text" placeholder="Kuota" class="form-control" value="{{kls[5]}}" required>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label" for="ss_kuota">Sisa Kuota</label>
+                    <div>
+                      <input id="ss_kuota" name="ss_kuota" type="text" placeholder="Sisa Kuota" class="form-control" value="{{kls[6]}}" required>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+              <div class="modal-footer" style="padding-right: 25px; padding-left: 25px;">
+                <div class="form-group">
+                  <button type="submit" class="btn btn-success" ><span class="glyphicon glyphicon-ok-sign"></span> Yes</button>
+                  <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> No</button>
+                </div>
+              </div>
+            </form>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!--edit-modal-->
+
+      <div class="modal fade" id="delete{{ kls[0] }}" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+              <h4 class="modal-title custom_align" id="Heading">Delete</h4>
+            </div>
+            <div class="modal-body">
+
+              <div class="alert alert-danger text-center"><span class="glyphicon glyphicon-warning-sign"></span>  Apakah Anda Yakin Akan Menghapus Data {{kls[0]}}?</div>
+
+            </div>
+            <form action="/admin/delete-kls" method="POST">
+              <div class="modal-footer ">
+                <input type="hidden" value="{{ kls[0] }}" name="id_kls">
+                <button type="submit" class="btn btn-success" ><span class="glyphicon glyphicon-ok-sign"></span> Yes</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> No</button>
+              </div>
+            </form>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!--delete modal-->
+      {% endfor %}
+
+      <div class="modal fade" id="tambah" tabindex="-1" role="dialog" aria-labelledby="edit" aria-hidden="true">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-hidden="true"><span class="glyphicon glyphicon-remove" aria-hidden="true"></span></button>
+              <h4 class="modal-title custom_align" id="Heading">Tambah Kelas</h4>
+            </div>
+            <form class="form-horizontal" role="form" action="/admin/kelas" method="POST">
+              <div class="modal-body" style="padding-right: 25px; padding-left: 25px;">
+                <fieldset>
+                  <div class="form-group">
+                    <label class="control-label" for="nm_kls">Nama Kelas</label>
+                    <input id="nm_kls" name="nm_kls" type="text" placeholder="Nama Kelas" class="form-control" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label" for="opsi">Prodi/Makul*</label>
+                    <select id="opsi" class="form-control" name="id_mkl" required>
+                      {% for data in prodi_makul %}
+                      <option value="{{data[0]}}">{{data[1]}}/{{data[2]}}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="control-label" for="kuota">Kuota</label>
+                    <div>
+                      <input id="kuota" name="kuota" type="text" placeholder="Kuota" class="form-control" required>
+                    </div>
+                  </div>
+                </fieldset>
+              </div>
+              <div class="modal-footer" style="padding-right: 25px; padding-left: 25px;">
+                <div class="form-group">
+                  <button type="submit" class="btn btn-success" ><span class="glyphicon glyphicon-ok-sign"></span> Yes</button>
+                  <button type="button" class="btn btn-default" data-dismiss="modal"><span class="glyphicon glyphicon-remove"></span> No</button>
+                </div>
+              </div>
+            </form>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!--tambah-modal-->
+
+    </div>
+    <!-- /#page-wrapper -->
+
+  </div>
+  <!-- /#wrapper -->
+
+  <!--javascript-->
+  {% include 'admin/js.html' %}
+
+  <!-- DataTables JavaScript -->
+  <script src="../static/vendor/datatables/js/jquery.dataTables.min.js"></script>
+  <script src="../static/vendor/datatables-plugins/dataTables.bootstrap.min.js"></script>
+  <script src="../static/vendor/datatables-responsive/dataTables.responsive.js"></script>
+
+  <!-- Custom Theme JavaScript -->
+  <script src="../static/dist/js/sb-admin-2.js"></script>
+
+  <!-- Page-Level Demo Scripts - Tables - Use for reference -->
+  <script>
+  $(document).ready(function() {
+    $('#dataTables-example').DataTable({
+      responsive: true
+    });
+  });
+  </script>
+
+  </html>
