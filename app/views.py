@@ -1,9 +1,12 @@
-from flask import Flask, request, render_template, url_for, redirect, flash
+from flask import Flask, request, render_template, url_for, redirect, flash, session
+from functools import wraps
 from app import *
 from datetime import datetime
 from werkzeug import secure_filename
+from werkzeug.security import generate_password_hash, check_password_hash
 from config import *
 import os
+from control import *
 
 conn = koneksi
 mhs_direktori = app.config['UPLOAD_FOLDER']+"mhs/"
@@ -20,15 +23,103 @@ def year_now():
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.',1)[1] in app.config['ALLOWED_EXTENSIONS']
 
-@app.route('/admin')
-def index():
-    return render_template('admin/blank.html')
+def read_session(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        session.permanent = True
+        try:
+            if session['id_user'] is False:
+                flash('Username or Password is invalid')
+                return redirect(url_for('login'))
+            return f(*args, **kwargs)
+        except KeyError:
+            flash('Your Session is time out, login first')
+            return redirect(url_for('login'))
+    return wrap
 
-@app.route('/login')
+def admin_role(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if cek_level(session['id_user']) != 1:
+            return 'aaaaaaa'
+        return f(*args, **kwargs)
+    return wrap
+
+def mhs_role(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if cek_level(session['id_user']) != 2:
+            return 'xxxxxxx'
+        return f(*args, **kwargs)
+    return wrap
+
+def dosen_role(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if cek_level(session['id_user']) != 3:
+            return 'yyyyyyy'
+        return f(*args, **kwargs)
+    return wrap
+
+def cek_level(idd):
+    cursor = conn.cursor()
+    query = """SELECT usr_4 FROM tb_user WHERE usr_1=%s""" % (idd)
+    cursor.execute(query)
+    user_data = cursor.fetchall()
+    cursor.close()
+    for d in user_data:
+        level = d[0]
+    return level
+
+@app.route('/', methods=['GET', 'POST'])
 def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        cursor = conn.cursor()
+        query = """SELECT * FROM tb_user WHERE usr_2=%s AND usr_3=%s"""
+        cursor.execute(query, (username, password))
+        data = cursor.fetchall()
+        cursor.close()
+
+        if data is ():
+            flash ('Username or Password is Incorrect')
+        else:
+            for d in data:
+                if d[3] == 1:
+                    session['id_user'] = d[0]
+                    #session['id_admin'] = d[5]
+                    return redirect(url_for('admin'))
+                elif d[3] == 2:
+                    session['id_user'] = d[0]
+                    #session['id_mhs'] = d[5]
+                    return redirect(url_for('dash_mhs'))
+                elif d[3] == 3:
+                    session['id_user'] = d[0]
+                    print session['id_user']
+                    #session['id_dosen'] = d[5]
+                    return redirect(url_for('dash_dosen'))
+                else:
+                    flash ('Error Role of User')
+
     return render_template('login.html')
 
+@app.route('/logout')
+def loguot():
+    session.pop('id_user', None)
+    session.pop('id_mhs', None)
+    return redirect(url_for('login'))
+
+@app.route('/admin')
+@read_session
+@admin_role
+def admin():
+    return render_template('admin/home.html')
+
 @app.route('/admin/fakultas', methods=['GET', 'POST'])
+@read_session
+@admin_role
 def fakultas():
     #tambah data fakultas
     if request.method == 'POST':
@@ -52,6 +143,8 @@ def fakultas():
     return render_template('admin/fakultas.html', fakultas=data)
 
 @app.route('/admin/edit-fakultas', methods=['POST'])
+@read_session
+@admin_role
 def edit_fklts():
     if request.method == 'POST':
         nama_fklts = request.form['nama_fklts']
@@ -67,13 +160,15 @@ def edit_fklts():
     return redirect(url_for('fakultas'))
 
 @app.route('/admin/delete-fakultas', methods=['POST'])
+@read_session
+@admin_role
 def delete_fklts():
     if request.method == 'POST':
         data_id = request.form['id_fklts']
 
         cursor = conn.cursor()
-        query = """DELETE FROM tb_fakultas WHERE fklts_1=%s"""
-        cursor.execute(query, (data_id))
+        query = """DELETE FROM tb_fakultas WHERE fklts_1=%s""" % (data_id)
+        cursor.execute(query)
         conn.commit()
         cursor.close()
 
@@ -81,6 +176,8 @@ def delete_fklts():
     return redirect(url_for('fakultas'))
 
 @app.route('/admin/prodi', methods=['GET', 'POST'])
+@read_session
+@admin_role
 def prodi():
     if request.method == 'POST':
         #tambah data prodi
@@ -109,6 +206,8 @@ def prodi():
     return render_template('admin/prodi.html', prodi=data1, fakultas=data2)
 
 @app.route('/admin/edit-prodi', methods=['POST'])
+@read_session
+@admin_role
 def edit_prd():
     if request.method == 'POST':
         id_prodi = int(request.form['id_prodi'])
@@ -125,6 +224,8 @@ def edit_prd():
         return redirect(url_for('prodi'))
 
 @app.route('/admin/delete-prodi', methods=['POST'])
+@read_session
+@admin_role
 def delete_prd():
     if request.method == 'POST':
         id_prodi = request.form['id_prodi']
@@ -139,6 +240,8 @@ def delete_prd():
         return redirect(url_for('prodi'))
 
 @app.route('/admin/mhs', methods=['GET', 'POST', 'PUT'])
+@read_session
+@admin_role
 def mhs():
     if request.method == 'POST':
         nim = request.form['nim']
@@ -202,6 +305,8 @@ def ins_mhs(nim, nama, id_prodi, tmpt_lhr, tgl_lhr, alamat, file):
         return {'error': str(e)}
 
 @app.route('/admin/edit-mhs', methods=['POST'])
+@read_session
+@admin_role
 def edit_mhs():
     if request.method == 'POST':
         id_mhs = request.form['id_mhs']
@@ -249,6 +354,8 @@ def edt_mhs(id_mhs, nim, nama, id_prodi, tmpt_lhr, tgl_lhr, alamat, file):
         return {'error': str(e)}
 
 @app.route('/admin/delete-mhs', methods=['POST'])
+@read_session
+@admin_role
 def delete_mhs():
     if request.method == 'POST':
         id_mhs = request.form['id_mhs']
@@ -257,12 +364,17 @@ def delete_mhs():
         query = """DELETE FROM tb_mhs WHERE mhs_1 =%s """ % (id_mhs)
         cursor.execute(query)
         conn.commit()
+        query = """CALL delete_mhs_usr(%s)""" % (id_mhs)
+        cursor.execute(query)
+        conn.commit()
         cursor.close()
 
         flash ('Data Mahasiswa '+id_mhs+' Berhasi Dihapus!')
         return redirect(url_for('mhs'))
 
 @app.route('/admin/dosen', methods=['GET', 'POST'])
+@read_session
+@admin_role
 def dosen():
     if request.method == 'POST':
         nid = request.form['nid']
@@ -300,7 +412,7 @@ def ins_dsn(nid, nama, tmpt_lhr, tgl_lhr, alamat, file):
             conn.commit()
             cursor.close()
 
-            flash ('Data Dosen '+nim+' Berhasil Ditambah!')
+            flash ('Data Dosen '+nid+' Berhasil Ditambah!')
             return redirect(url_for('dosen'))
         else:
             if file and allowed_file(file.filename):
@@ -313,7 +425,7 @@ def ins_dsn(nid, nama, tmpt_lhr, tgl_lhr, alamat, file):
                 conn.commit()
                 cursor.close()
 
-                flash ('Data Dosen '+nim+' Berhasil Ditambah!')
+                flash ('Data Dosen '+nid+' Berhasil Ditambah!')
                 return redirect(url_for('dosen'))
             else:
                 flash ('Ekstensi gambar tidak diperbolehkan!')
@@ -322,6 +434,8 @@ def ins_dsn(nid, nama, tmpt_lhr, tgl_lhr, alamat, file):
         return {'error': str(e)}
 
 @app.route('/admin/edit-dsn', methods=['POST'])
+@read_session
+@admin_role
 def edit_dsn():
     if request.method == 'POST':
         id_dsn = request.form['id_dsn']
@@ -368,6 +482,8 @@ def edt_dsn(id_dsn, nid, nama, tmpt_lhr, tgl_lhr, alamat, file):
         return {'error': str(e)}
 
 @app.route('/admin/delete-dsn', methods=['POST'])
+@read_session
+@admin_role
 def delete_dsn():
     if request.method == 'POST':
         id_dsn = request.form['id_dsn']
@@ -376,12 +492,17 @@ def delete_dsn():
         query = """DELETE FROM tb_dosen WHERE dsn_1 =%s """ % (id_dsn)
         cursor.execute(query)
         conn.commit()
+        query = """CALL delete_dsn_usr(%s)""" % (id_dsn)
+        cursor.execute(query)
+        conn.commit()
         cursor.close()
 
         flash ('Data Dosen '+id_dsn+' Berhasi Dihapus!')
         return redirect(url_for('dosen'))
 
 @app.route('/admin/makul', methods=['GET', 'POST'])
+@read_session
+@admin_role
 def makul():
     if request.method == 'POST':
         nama = request.form['nama']
@@ -409,6 +530,8 @@ def makul():
     return render_template('admin/makul.html', makul=data, fklts_prodi=data1)
 
 @app.route('/admin/edit-makul', methods=['POST'])
+@read_session
+@admin_role
 def edit_mkl():
     if request.method == 'POST':
         id_mkl = request.form['id_mkl']
@@ -427,6 +550,8 @@ def edit_mkl():
         return redirect(url_for('makul'))
 
 @app.route('/admin/delete-makul', methods=['POST'])
+@read_session
+@admin_role
 def delete_mkl():
     if request.method == 'POST':
         id_mkl = request.form['id_mkl']
@@ -441,6 +566,8 @@ def delete_mkl():
         return redirect(url_for('makul'))
 
 @app.route('/admin/kelas', methods=['GET', 'POST'])
+@read_session
+@admin_role
 def kelas():
     if request.method == 'POST':
         nm_kls = request.form['nm_kls']
@@ -467,6 +594,8 @@ def kelas():
     return render_template('admin/kelas.html', kelas=data, prodi_makul=data1)
 
 @app.route('/admin/edit-kelas', methods=['POST'])
+@read_session
+@admin_role
 def edit_kls():
     if request.method == 'POST':
         id_kls = request.form['id_kls']
@@ -485,6 +614,8 @@ def edit_kls():
         return redirect(url_for('kelas'))
 
 @app.route('/admin/delete-kls', methods=['POST'])
+@read_session
+@admin_role
 def delete_kls():
     if request.method == 'POST':
         id_kls = request.form['id_kls']
@@ -497,3 +628,21 @@ def delete_kls():
 
         flash ('Data Kelas '+id_kls+' Berhasil Dihapus!')
         return redirect(url_for('kelas'))
+
+@app.route('/mhs')
+@read_session
+@mhs_role
+def dash_mhs():
+    return render_template('mhs/home.html')
+
+@app.route('/mhs/krs')
+@read_session
+@mhs_role
+def krs_mhs():
+    return render_template('mhs/krs.html')
+
+@app.route('/dosen')
+@read_session
+@dosen_role
+def dash_dosen():
+    return render_template('dosen/home.html')

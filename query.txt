@@ -95,11 +95,13 @@ foreign key (abl_kls_1) references tb_ambil_kls(abl_kls_1) on delete cascade on 
 
 create table tb_setting(
 set_1 int auto_increment primary key,
-set_2 varchar(10),
+set_2 varchar(100),
 set_3 varchar(10),
-set_4 int,
-set_5 datetime
+set_4 varchar(10),
+set_5 int,
+set_6 datetime
 )
+
 
 CREATE VIEW form_prodi
 AS
@@ -151,3 +153,64 @@ SELECT tb_makul.mkl_1, tb_prodi.prodi_2, tb_makul.mkl_2
 FROM tb_makul INNER JOIN tb_prodi ON tb_makul.prodi_1=tb_prodi.prodi_1
 
 SELECT * FROM prodi_makul
+
+CREATE TABLE tb_user(
+usr_1 int auto_increment primary key,
+usr_2 varchar(30) UNIQUE,
+usr_3 varchar(100),
+usr_4 int,
+usr_5 int,
+usr_6 int,
+usr_7 datetime
+)
+
+drop table tb_user
+
+#trigger untuk membuat akun mhs pd tb_user setelah insert pd tb_mhs
+DELIMITER |
+CREATE TRIGGER create_user_mhs
+AFTER INSERT ON tb_mhs
+FOR EACH ROW 
+BEGIN
+	INSERT INTO tb_user (usr_2, usr_3, usr_4, usr_5, usr_6, usr_7)
+	VALUES (new.mhs_2, new.mhs_2, 2, 1, new.mhs_1, new.mhs_8);
+END;|
+
+#prosedure untuk menghapus akun dr mahasiswa pd tb_user
+DELIMITER |
+CREATE PROCEDURE delete_mhs_usr (IN id_mhs INT)
+BEGIN
+DECLARE id_user int;
+SELECT tb_user.usr_1 INTO id_user FROM tb_user WHERE usr_6=id_mhs AND usr_4=2;
+DELETE FROM tb_user WHERE usr_1=id_user;
+END;|
+
+call delete_mhs_usr(21)
+
+drop procedure delete_mhs_dosen
+
+#trigger untuk membuat akun dosen pd tb_user setelah insert pd tb_dosen
+DELIMITER |
+CREATE TRIGGER create_user_dosen
+AFTER INSERT ON tb_dosen
+FOR EACH ROW
+BEGIN
+	INSERT INTO tb_user (usr_2, usr_3, usr_4, usr_5, usr_6, usr_7)
+	VALUES (new.dsn_2, new.dsn_2, 3, 1, new.dsn_1, new.dsn_8);
+END;|
+
+#prosedure untuk menghapus akun dr dosen pd tb_user
+DELIMITER |
+CREATE PROCEDURE delete_dsn_usr (IN id_dosen INT)
+BEGIN
+DECLARE id_user int;
+SELECT tb_user.usr_1 INTO id_user FROM tb_user WHERE usr_6=id_dosen AND usr_4=3;
+DELETE FROM tb_user WHERE usr_1=id_user;
+END;|
+
+call delete_dsn_usr(4)
+
+
+
+
+
