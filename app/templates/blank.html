@@ -11,19 +11,24 @@
 
   <div id="wrapper">
 
-    <!-- NaviFgation -->
-    {% include 'navigation.html' %}
-
     <!-- Page Content -->
     <div id="page-wrapper">
       <div class="container-fluid">
         <div class="row">
           <div class="col-lg-12">
-            <h1 class="page-header">Blank</h1>
+            <h1 class="page-header">401 Unauthorized</h1>
           </div>
           <!-- /.col-lg-12 -->
         </div>
         <!-- /.row -->
+        <div class="row">
+              <div class="col-lg-12">
+                <p>
+                  the page you were trying to access cannot be loaded until you first log in with a valid user ID and password.
+                </p>
+              </div>
+        </div>
+        </div>
       </div>
       <!-- /.container-fluid -->
     </div>
@@ -33,7 +38,7 @@
   <!-- /#wrapper -->
 
   <!--javascript-->
-  {% include 'js.js' %}
+  {% include 'js.html' %}
 
 </body>
 

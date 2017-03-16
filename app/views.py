@@ -41,7 +41,7 @@ def admin_role(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         if cek_level(session['id_user']) != 1:
-            return 'aaaaaaa'
+            return render_template('blank.html')
         return f(*args, **kwargs)
     return wrap
 
@@ -49,7 +49,7 @@ def mhs_role(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         if cek_level(session['id_user']) != 2:
-            return 'xxxxxxx'
+            return render_template('blank.html')
         return f(*args, **kwargs)
     return wrap
 
@@ -57,7 +57,7 @@ def dosen_role(f):
     @wraps(f)
     def wrap(*args, **kwargs):
         if cek_level(session['id_user']) != 3:
-            return 'yyyyyyy'
+            return render_template('blank.html')
         return f(*args, **kwargs)
     return wrap
 
@@ -70,6 +70,15 @@ def cek_level(idd):
     for d in user_data:
         level = d[0]
     return level
+
+def cek_pass_lama(idd, pass_lama):
+    cursor = conn.cursor()
+    query = """SELECT * FROM tb_user WHERE usr_1=%s AND usr_3=%s"""
+    cursor.execute(query, (idd, pass_lama))
+    data = cursor.fetchall()
+    cursor.close()
+
+    return data
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -87,35 +96,79 @@ def login():
             flash ('Username or Password is Incorrect')
         else:
             for d in data:
-                if d[3] == 1:
-                    session['id_user'] = d[0]
-                    #session['id_admin'] = d[5]
-                    return redirect(url_for('admin'))
-                elif d[3] == 2:
-                    session['id_user'] = d[0]
-                    #session['id_mhs'] = d[5]
-                    return redirect(url_for('dash_mhs'))
-                elif d[3] == 3:
-                    session['id_user'] = d[0]
-                    print session['id_user']
-                    #session['id_dosen'] = d[5]
-                    return redirect(url_for('dash_dosen'))
+                if d[4] == 1:
+                    if d[3] == 1:
+                        session['id_user'] = d[0]
+                        #session['id_admin'] = d[5]
+                        return redirect(url_for('admin'))
+                    elif d[3] == 2:
+                        session['id_user'] = d[0]
+                        print session['id_user']
+                        session['id_mahas'] = d[5]
+                        print session['id_mahas']
+                        return redirect(url_for('dash_mhs'))
+                    elif d[3] == 3:
+                        session['id_user'] = d[0]
+                        print session['id_user']
+                        session['id_dosen'] = d[5]
+                        print session['id_dosen']
+                        return redirect(url_for('dash_dosen'))
+                    else:
+                        flash ('Error Role of User')
                 else:
-                    flash ('Error Role of User')
+                    flash ('Silahkan Hubungi Admin Untuk Mengaktifkan Akun Anda')
 
+    session.pop('id_user', None)
+    session.pop('id_mahas', None)
+    session.pop('id_dosen', None)
     return render_template('login.html')
 
 @app.route('/logout')
 def loguot():
     session.pop('id_user', None)
-    session.pop('id_mhs', None)
+    session.pop('id_mahas', None)
+    session.pop('id_dosen', None)
     return redirect(url_for('login'))
 
 @app.route('/admin')
 @read_session
 @admin_role
 def admin():
-    return render_template('admin/home.html')
+    universitas = nm_univ()
+    return render_template('admin/home.html', univ=universitas)
+
+@app.route('/admin/setting', methods=['GET', 'POST'])
+@read_session
+@admin_role
+def setting():
+    if request.method == 'POST':
+        id_set = request.form['id_set']
+        nama_universitas = request.form['nm_univ']
+        ajaran = request.form['ajaran']
+        smstr = request.form['smstr']
+
+        if id_set != "kosong":
+            cursor = conn.cursor()
+            query = """UPDATE tb_setting SET set_5=0 WHERE set_1=%s""" % (id_set)
+            cursor.execute(query)
+            conn.commit()
+            cursor.close()
+
+        cursor = conn.cursor()
+        query = """INSERT INTO tb_setting (set_2, set_3, set_4, set_5, set_6) VALUES (%s, %s, %s, %s, %s)"""
+        cursor.execute(query, (nama_universitas, ajaran, smstr, 1, datetime_now()))
+        conn.commit()
+        cursor.close()
+        flash ('Setting Berhasil Disimpan!')
+        return redirect(url_for('setting'))
+
+    cursor = conn.cursor()
+    query = """SELECT * FROM tb_setting WHERE set_5=%s""" % (1)
+    cursor.execute(query)
+    data = cursor.fetchall()
+    cursor.close()
+    universitas = nm_univ()
+    return render_template('admin/setting.html', setting=data, univ=universitas)
 
 @app.route('/admin/fakultas', methods=['GET', 'POST'])
 @read_session
@@ -139,8 +192,8 @@ def fakultas():
     cursor.execute(query)
     data = cursor.fetchall()
     cursor.close()
-
-    return render_template('admin/fakultas.html', fakultas=data)
+    universitas = nm_univ()
+    return render_template('admin/fakultas.html', fakultas=data, univ=universitas)
 
 @app.route('/admin/edit-fakultas', methods=['POST'])
 @read_session
@@ -203,7 +256,8 @@ def prodi():
     cursor.execute(query)
     data2 = cursor.fetchall()
     cursor.close()
-    return render_template('admin/prodi.html', prodi=data1, fakultas=data2)
+    universitas = nm_univ()
+    return render_template('admin/prodi.html', prodi=data1, fakultas=data2, univ=universitas)
 
 @app.route('/admin/edit-prodi', methods=['POST'])
 @read_session
@@ -255,10 +309,11 @@ def mhs():
         ins_mhs(nim=nim, nama=nama, id_prodi=id_prodi, tmpt_lhr=tmpt_lhr, tgl_lhr=tgl_lhr, alamat=alamat, file=file)
 
     cursor = conn.cursor()
-    query = """SELECT * FROM form_mhs"""
+    query = """SELECT * FROM form_mhs ORDER BY mhs_1"""
     cursor.execute(query)
     data = cursor.fetchall()
-    query = """SELECT * FROM fklts_prodi"""
+
+    query = """SELECT * FROM fklts_prodi ORDER BY fklts_2"""
     cursor.execute(query)
     data1 = cursor.fetchall()
     cursor.close()
@@ -271,7 +326,9 @@ def mhs():
     else:
         nim = year_now()+"1"
 
-    return render_template('admin/mhs.html', mhs=data, fklts_prodi=data1, nim=nim)
+    universitas = nm_univ()
+
+    return render_template('admin/mhs.html', mhs=data, fklts_prodi=data1, nim=nim, univ=universitas)
 
 def ins_mhs(nim, nama, id_prodi, tmpt_lhr, tgl_lhr, alamat, file):
     try:
@@ -387,7 +444,7 @@ def dosen():
         ins_dsn(nid=nid, nama=nama, tmpt_lhr=tmpt_lhr, tgl_lhr=tgl_lhr, alamat=alamat, file=file)
 
     cursor = conn.cursor()
-    query = """SELECT * FROM tb_dosen"""
+    query = """SELECT * FROM tb_dosen ORDER BY dsn_1"""
     cursor.execute(query)
     data = cursor.fetchall()
     cursor.close()
@@ -400,7 +457,9 @@ def dosen():
     else:
         nid = "DSN"+year_now()+"1"
 
-    return render_template('admin/dosen.html', dosen=data, nid=nid)
+    universitas = nm_univ()
+
+    return render_template('admin/dosen.html', dosen=data, nid=nid, univ=universitas)
 
 def ins_dsn(nid, nama, tmpt_lhr, tgl_lhr, alamat, file):
     try:
@@ -523,11 +582,13 @@ def makul():
     query = """SELECT * FROM form_makul"""
     cursor.execute(query)
     data = cursor.fetchall()
-    query = """SELECT * FROM fklts_prodi"""
+    query = """SELECT * FROM fklts_prodi ORDER BY fklts_2"""
     cursor.execute(query)
     data1 = cursor.fetchall()
     cursor.close()
-    return render_template('admin/makul.html', makul=data, fklts_prodi=data1)
+
+    universitas = nm_univ()
+    return render_template('admin/makul.html', makul=data, fklts_prodi=data1, univ=universitas)
 
 @app.route('/admin/edit-makul', methods=['POST'])
 @read_session
@@ -575,8 +636,8 @@ def kelas():
         kuota = request.form['kuota']
 
         cursor = conn.cursor()
-        query = """INSERT INTO tb_kelas (kls_2, mkl_1, kls_3, kls_4, kls_5) VALUES (%s, %s, %s, %s, %s)"""
-        cursor.execute(query, (nm_kls, id_mkl, kuota, kuota, datetime_now()))
+        query = """INSERT INTO tb_kelas (kls_2, mkl_1, kls_3, kls_4, kls_5, kls_6) VALUES (%s, %s, %s, %s, %s, %s)"""
+        cursor.execute(query, (nm_kls, id_mkl, kuota, kuota, datetime_now(), 0))
         conn.commit()
         cursor.close()
 
@@ -587,11 +648,13 @@ def kelas():
     query = """SELECT * FROM form_kelas"""
     cursor.execute(query)
     data =cursor.fetchall()
-    query = """SELECT * FROM prodi_makul"""
+    query = """SELECT * FROM prodi_makul ORDER BY prodi_2"""
     cursor.execute(query)
     data1 = cursor.fetchall()
     cursor.close()
-    return render_template('admin/kelas.html', kelas=data, prodi_makul=data1)
+
+    universitas = nm_univ()
+    return render_template('admin/kelas.html', kelas=data, prodi_makul=data1, univ=universitas)
 
 @app.route('/admin/edit-kelas', methods=['POST'])
 @read_session
@@ -629,20 +692,375 @@ def delete_kls():
         flash ('Data Kelas '+id_kls+' Berhasil Dihapus!')
         return redirect(url_for('kelas'))
 
+@app.route('/admin/ganti-password', methods=['GET', 'POST'])
+@read_session
+@admin_role
+def ganti_pass_admin():
+    if request.method == 'POST':
+        pass_lama = request.form['pass_lama']
+        pass_baru = request.form['pass_baru']
+        u_pass_baru = request.form['u_pass_baru']
+
+        if cek_pass_lama(session['id_user'], pass_lama) == ():
+            flash ('Password Lama Anda Salah, Silahkan Masukkan Password Lama Anda Dengan Benar.')
+        else:
+            if pass_baru != u_pass_baru:
+                flash ('Password Baru Anda Tidak Sama, Silahkan Ulangi.')
+            else:
+                cursor = conn.cursor()
+                query = """UPDATE tb_user SET usr_3=%s WHERE usr_1=%s"""
+                cursor.execute(query, (pass_baru, session['id_user']))
+                conn.commit()
+                cursor.close()
+
+                flash ('Password Anda Telah Diperbarui!')
+        return redirect(url_for('ganti_pass_admin'))
+
+    universitas = nm_univ()
+    return render_template('admin/ganti-password.html', univ=universitas)
+
 @app.route('/mhs')
 @read_session
 @mhs_role
 def dash_mhs():
-    return render_template('mhs/home.html')
 
-@app.route('/mhs/krs')
+    data = profil_mhs(session['id_mahas'])
+    universitas = nm_univ()
+    return render_template('mhs/home.html', univ=universitas, mhs=data)
+
+@app.route('/mhs/profil')
 @read_session
 @mhs_role
-def krs_mhs():
-    return render_template('mhs/krs.html')
+def profil_mahasiswa():
+    data = profil_mhs(session['id_mahas'])
+    universitas = nm_univ()
+    return render_template('mhs/profil.html', univ=universitas, mhs=data)
+
+@app.route('/mhs/khs')
+@read_session
+@mhs_role
+def khs():
+    cursor= conn.cursor()
+    query = """SELECT * FROM khs WHERE mhs_1=%s""" % (session['id_mahas'])
+    cursor.execute(query)
+    data = cursor.fetchall()
+    cursor.close()
+
+    data1 = profil_mhs(session['id_mahas'])
+    universitas = nm_univ()
+    return render_template('mhs/khs.html', univ=universitas, khs=data, mhs=data1)
+
+@app.route('/mhs/krs', methods=['GET', 'POST'])
+@read_session
+@mhs_role
+def krs():
+    if request.method == 'POST':
+        id_abl_kls = request.form['id_abl_kls']
+        id_kls = request.form['id_kls']
+
+        cursor = conn.cursor()
+        query = """DELETE FROM tb_ambil_kls WHERE abl_kls_1=%s""" % (id_abl_kls)
+        cursor.execute(query)
+        conn.commit()
+        query = """UPDATE tb_kelas SET kls_4=(kls_4+1) WHERE kls_1=%s""" % (id_kls)
+        cursor.execute(query)
+        conn.commit()
+        cursor.close()
+
+        flash ('Data '+id_abl_kls+' Berhasil Dihapus!')
+        return redirect(url_for('krs'))
+
+    cursor = conn.cursor()
+    query = """SELECT * FROM krs WHERE mhs_1=%s AND abl_kls_2=%s AND abl_kls_3=%s"""
+    cursor.execute(query, (session['id_mahas'], thn_ajaran(), smstr()))
+    data = cursor.fetchall()
+    cursor.close()
+
+    data1 = profil_mhs(session['id_mahas'])
+    universitas = nm_univ()
+    return render_template('mhs/krs.html', univ=universitas, krs=data, mhs=data1)
+
+@app.route('/mhs/add-krs', methods=['GET', 'POST'])
+@read_session
+@mhs_role
+def add_krs():
+    if request.method == 'POST':
+        id_mhs = session['id_mahas']
+        id_kls = request.form['id_kls']
+        tahun_ajaran = thn_ajaran()
+        semester = smstr()
+
+        if check_ambil_kls_ganda(id_kls, id_mhs) == False:
+            cursor = conn.cursor()
+            query = """INSERT INTO tb_ambil_kls (mhs_1, kls_1, abl_kls_2, abl_kls_3, abl_kls_4) VALUES (%s, %s, %s, %s, %s)"""
+            cursor.execute(query, (id_mhs, id_kls, tahun_ajaran, semester, datetime_now()))
+            conn.commit()
+            cursor.close()
+
+            flash ('Data KRS Berhasil Ditambah!')
+        else:
+            flash ('Data '+id_kls+' Sudah Ada! Pilih Kelas yang Lain.')
+
+        return redirect(url_for('add_krs'))
+
+    cursor = conn.cursor()
+    query = """SELECT * FROM add_krs WHERE prodi_1=%s""" % (prodi_mhs(session['id_mahas']))
+    cursor.execute(query)
+    data = cursor.fetchall()
+    cursor.close()
+
+    data1=()
+
+    if smstr() == "GANJIL":
+        for d in data:
+            if (d[4] % 2) == 1:
+                data1 = data1 + (d,)
+    elif smstr() == 'GENAP':
+        for d in data:
+            if (d[4] % 2) == 0:
+                data1 = data1 + (d,)
+    elif smstr() == "SP":
+        for d in data:
+            if d[4] is "SP":
+                data1 = data1 + (d,)
+
+    data2 = profil_mhs(session['id_mahas'])
+    universitas = nm_univ()
+    return render_template('mhs/add-krs.html', univ=universitas, krs=data1, mhs=data2)
+
+def check_ambil_kls_ganda(id_kls, id_mhs):
+    tahun_ajaran = thn_ajaran()
+    cursor = conn.cursor()
+    query = """SELECT * FROM tb_ambil_kls WHERE mhs_1=%s AND kls_1=%s AND abl_kls_2=%s"""
+    cursor.execute(query, (id_mhs, id_kls, tahun_ajaran))
+    data = cursor.fetchall()
+    cursor.close()
+
+    if data == ():
+        cek = False
+    else:
+        cek = True
+    return cek
+
+@app.route('/mhs/ganti-password', methods=['GET', 'POST'])
+@read_session
+@mhs_role
+def ganti_pass_mhs():
+    if request.method == 'POST':
+        pass_lama = request.form['pass_lama']
+        pass_baru = request.form['pass_baru']
+        u_pass_baru = request.form['u_pass_baru']
+
+        if cek_pass_lama(session['id_user'], pass_lama) == ():
+            flash ('Password Lama Anda Salah, Silahkan Masukkan Password Lama Anda Dengan Benar.')
+        else:
+            if pass_baru != u_pass_baru:
+                flash ('Password Baru Anda Tidak Sama, Silahkan Ulangi.')
+            else:
+                cursor = conn.cursor()
+                query = """UPDATE tb_user SET usr_3=%s WHERE usr_1=%s"""
+                cursor.execute(query, (pass_baru, session['id_user']))
+                conn.commit()
+                cursor.close()
+
+                flash ('Password Anda Telah Diperbarui!')
+        return redirect(url_for('ganti_pass_mhs'))
+
+    data = profil_mhs(session['id_mahas'])
+    universitas = nm_univ()
+    return render_template('mhs/ganti-password.html', univ=universitas, mhs=data)
 
 @app.route('/dosen')
 @read_session
 @dosen_role
 def dash_dosen():
-    return render_template('dosen/home.html')
+    data = profil_dsn(session['id_dosen'])
+    universitas = nm_univ()
+    return render_template('dosen/home.html', univ=universitas, dsn=data)
+
+@app.route('/dosen/profil')
+@read_session
+@dosen_role
+def profil_dosen():
+    data = profil_dsn(session['id_dosen'])
+    universitas = nm_univ()
+    return render_template('dosen/profil.html', univ=universitas, dsn=data)
+
+@app.route('/dosen/kelas-dosen')
+@read_session
+@dosen_role
+def kelas_dosen():
+
+    cursor = conn.cursor()
+    query = """SELECT * FROM kelas_dosen WHERE dsn_1=%s""" % (session['id_dosen'])
+    cursor.execute(query)
+    data = cursor.fetchall()
+    cursor.close()
+
+    data1 = profil_dsn(session['id_dosen'])
+    universitas = nm_univ()
+    return render_template('dosen/kelas-dosen.html', kelas_dosen=data, univ=universitas, dsn=data1)
+
+@app.route('/dosen/tambah-kelas', methods=['GET', 'POST'])
+@read_session
+@dosen_role
+def tambah_kelas():
+    if request.method == 'POST':
+        id_dosen = session['id_dosen']
+        id_kls = request.form['id_kls']
+
+        if check_kelas_ganda(id_kls) is True:
+            flash ('Aktifitas Mencurigakan, Akun Ini Akan Ditandai')
+
+            cursor = conn.cursor()
+            query = """UPDATE tb_user SET usr_5=0 WHERE usr_1=%s""" % (session['id_user'])
+            cursor.execute(query)
+            conn.commit()
+            cursor.close()
+
+            session.pop('id_user', None)
+            session.pop('id_mhs', None)
+            session.pop('id_dosen', None)
+        else:
+            cursor = conn.cursor()
+            query = """INSERT INTO tb_pengampu (dsn_1, kls_1, ampu_2) VALUES (%s, %s, %s)"""
+            cursor.execute(query, (id_dosen, id_kls, datetime_now()))
+            conn.commit()
+            cursor.close()
+
+            cursor = conn.cursor()
+            query = """UPDATE tb_kelas SET kls_6=%s WHERE kls_1=%s""" % (id_dosen, id_kls)
+            cursor.execute(query)
+            conn.commit()
+            cursor.close()
+
+            flash ('Kelas (id: '+id_kls+') Berhasil Ditambah Pada Data Kelas Anda')
+        return redirect(url_for('tambah_kelas'))
+
+
+    cursor = conn.cursor()
+    query = """SELECT * FROM tambah_kelas"""
+    cursor.execute(query)
+    data = cursor.fetchall()
+    cursor.close()
+
+    data1 = profil_dsn(session['id_dosen'])
+    universitas = nm_univ()
+    return render_template('dosen/tambah-kelas.html', tambah_kelas=data, univ=universitas, dsn=data1)
+
+def check_kelas_ganda(idd):
+    cursor = conn.cursor()
+    query = """SELECT * FROM tb_pengampu WHERE kls_1=%s""" % (idd)
+    cursor.execute(query)
+    data = cursor.fetchall()
+    cursor.close()
+    flag = True
+    if data == ():
+        flag = False
+    else:
+        flag = True
+    return flag
+
+@app.route('/dosen/hapus-kelas', methods=['POST'])
+@read_session
+@dosen_role
+def hapus_kelas():
+    if request.method == 'POST':
+        id_ampu = request.form['id_ampu']
+        id_kls = request.form['id_kls']
+
+        cursor = conn.cursor()
+        query = """DELETE FROM tb_pengampu WHERE ampu_1=%s""" % (id_ampu)
+        cursor.execute(query)
+        conn.commit()
+        query = """UPDATE tb_kelas SET kls_6=0 WHERE kls_1=%s""" % (id_kls)
+        cursor.execute(query)
+        conn.commit()
+        cursor.close()
+
+        flash ('Data Kelas Anda '+id_ampu+' Berhasil Dihapus!')
+        return redirect(url_for('kelas_dosen'))
+
+@app.route('/dosen/input-nilai')
+@read_session
+@dosen_role
+def pilih_kelas():
+
+    cursor = conn.cursor()
+    query = """SELECT * FROM pilih_kelas WHERE dsn_1=%s""" % (session['id_dosen'])
+    cursor.execute(query)
+    data = cursor.fetchall()
+    cursor.close()
+
+    data1 = profil_dsn(session['id_dosen'])
+    universitas = nm_univ()
+    return render_template('dosen/pilih-kelas.html', pilih_kelas=data, dsn=data1, univ=universitas)
+
+@app.route('/dosen/input-nilai/<kls>', methods=['GET', 'POST'])
+@read_session
+@dosen_role
+def input_nilai(kls):
+    if request.method == 'POST':
+        id_kls = request.form['id_kls']
+        id_nil = request.form['id_nil']
+        sks = int(request.form['sks'])
+        tugas = int(request.form['tugas'])
+        uts = int(request.form['uts'])
+        uas = int(request.form['uas'])
+        kehadiran = int(request.form['kehadiran'])
+
+        hasil = hitung_nilai_mhs(tugas, uts, uas, kehadiran, sks)
+        nilai = hasil[0]
+        simbol = hasil[1]
+        bobot = hasil[2]
+        total = hasil[3]
+
+        print hasil
+
+        cursor = conn.cursor()
+        query = """UPDATE tb_nilai SET nil_4=%s, nil_2=%s, nil_3=%s, nil_5=%s, nil_6=%s, nil_7=%s, nil_8=%s, nil_9=%s WHERE nil_1=%s"""
+        cursor.execute(query, (tugas, uts, uas, kehadiran, nilai, simbol, total, bobot, id_nil))
+        conn.commit()
+        cursor.close()
+
+        return redirect(url_for('input_nilai', kls=id_kls))
+
+    data2=()
+    cursor = conn.cursor()
+    query = """SELECT * FROM input_nilai WHERE kls_1=%s AND abl_kls_2=%s AND abl_kls_3=%s"""
+    cursor.execute(query, (kls, thn_ajaran(), smstr()))
+    data2 = cursor.fetchall()
+    cursor.close()
+
+    data3 = info_pilih_kelas(kls)
+    data1 = profil_dsn(session['id_dosen'])
+    universitas = nm_univ()
+    return render_template('dosen/input-nilai.html', dsn=data1, mhs=data2, univ=universitas, kls=kls, info_kelas=data3)
+
+@app.route('/dosen/ganti-password', methods=['GET', 'POST'])
+@read_session
+@dosen_role
+def ganti_pass_dsn():
+    if request.method == 'POST':
+        pass_lama = request.form['pass_lama']
+        pass_baru = request.form['pass_baru']
+        u_pass_baru = request.form['u_pass_baru']
+
+        if cek_pass_lama(session['id_user'], pass_lama) == ():
+            flash ('Password Lama Anda Salah, Silahkan Masukkan Password Lama Anda Dengan Benar.')
+        else:
+            if pass_baru != u_pass_baru:
+                flash ('Password Baru Anda Tidak Sama, Silahkan Ulangi.')
+            else:
+                cursor = conn.cursor()
+                query = """UPDATE tb_user SET usr_3=%s WHERE usr_1=%s"""
+                cursor.execute(query, (pass_baru, session['id_user']))
+                conn.commit()
+                cursor.close()
+
+                flash ('Password Anda Telah Diperbarui!')
+        return redirect(url_for('ganti_pass_dsn'))
+
+    data = profil_dsn(session['id_dosen'])
+    universitas = nm_univ()
+    return render_template('dosen/ganti-password.html', univ=universitas, dsn=data)

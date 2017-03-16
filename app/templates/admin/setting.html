@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+  {% include 'admin/head.html' %}
+
+</head>
+
+<body>
+
+  <div id="wrapper">
+
+    <!-- NaviFgation -->
+    {% include 'admin/navigation.html' %}
+
+    <!-- Page Content -->
+    <div id="page-wrapper">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-lg-12">
+            <h1 class="page-header">Setting SIA</h1>
+          </div>
+          <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="panel panel-default">
+              <div class="panel-heading">
+                <h4 class="modal-title custom_align" id="Heading">Setting</h4>
+              </div>
+              <div class="panel-body">
+                {% with messages = get_flashed_messages() %}
+                {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-info text-center"><span class="glyphicon glyphicon-info-sign"></span>{{message}}</div>
+                {% endfor %}
+                {% endif %}
+                {% endwith %}
+                <fieldset>
+                    {% if setting == () %}
+                    <form action="/admin/setting" method="POST">
+                    <div class="form-group">
+                      <label class="control-label" for="nm_univ">Nama Universitas</label>
+                      <input id="nm_univ" name="nm_univ" type="text" placeholder="Nama Universitas" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label" for="thn">Tahun Ajaran</label>
+                      <input id="thn" type="text" name="ajaran" placeholder="Tahun Ajaran" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="smstr" class="control-label">Semesterrrrrr</label>
+                      <select id="smstr" class="form-control" name="smstr" required>
+                        <option value="GANJIL">Ganjil</option>
+                        <option value="GENAP">Genap</option>
+                        <option value="SP">Semester Pendek</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <input type="hidden" name="id_set" value="kosong">
+                      <button type="submit" class="btn btn-success" ><span class="glyphicon glyphicon-ok-sign"></span> Simpan</button>
+                    </div>
+                    </form>
+                    {% else %}
+                    {% for set in setting %}
+                    <form action="/admin/setting" method="POST">
+                    <div class="form-group">
+                      <label class="control-label" for="nm_univ">Nama Universitas</label>
+                      <input id="nm_univ" name="nm_univ" type="text" placeholder="Nama Universitas" class="form-control" value="{{set[1]}}" required>
+                    </div>
+                    <div class="form-group">
+                      <label class="control-label" for="thn">Tahun Ajaran</label>
+                      <input id="thn" type="text" name="ajaran" placeholder="Tahun Ajaran" class="form-control" value="{{set[2]}}" required>
+                    </div>
+                    <div class="form-group">
+                      <label for="smstr" class="control-label">Semester</label>
+                      <select id="smstr" class="form-control" name="smstr" required>
+                        {% if set[3] == "GENAP" %}
+                        <option value="GANJIL">Ganjil</option>
+                        <option value="GENAP" selected>Genap</option>
+                        <option value="SP">Semester Pendek</option>
+                        {% elif set[3] == "SP" %}
+                        <option value="GANJIL">Ganjil</option>
+                        <option value="GENAP">Genap</option>
+                        <option value="SP" selected>Semester Pendek</option>
+                        {% else %}
+                        <option value="GANJIL" selected>Ganjil</option>
+                        <option value="GENAP">Genap</option>
+                        <option value="SP">Semester Pendek</option>
+                        {% endif %}
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <input type="hidden" name="id_set" value="{{set[0]}}">
+                      <button type="submit" class="btn btn-success" ><span class="glyphicon glyphicon-ok-sign"></span> Simpan</button>
+                    </div>
+                    </form>
+                    {% endfor %}
+                    {% endif %}
+
+                </fieldset>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /.container-fluid -->
+    </div>
+    <!-- /#page-wrapper -->
+
+  </div>
+  <!-- /#wrapper -->
+
+  <!--javascript-->
+  {% include 'admin/js.html' %}
+
+</body>
+
+</html>

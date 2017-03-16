@@ -54,23 +54,23 @@
                       <th>Prodi</th>
                       <th>SKS</th>
                       <th>Semester</th>
-                      <th>Detail</th>
-                      <th>Edit</th>
-                      <th>Hapus</th>
+                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
                     {% if makul %}
                     {% for mkl in makul %}
                     <tr class="odd gradeX">
-                      <td>{{ mkl[0] }}</td>
+                      <td align="center">{{ mkl[0] }}</td>
                       <td>{{ mkl[1] }}</td>
                       <td>{{ mkl[5] }}</td>
-                      <td>{{ mkl[6] }}</td>
-                      <td>{{ mkl[7] }}</td>
-                      <td align="center"><a href="#" data-placement="top" data-toggle="tooltip" title="Detail"><button class="btn btn-default btn-xs" data-title="Detail"><span class="glyphicon glyphicon-eye-open"></span></button></a></td>
-                      <td align="center"><p data-placement="top" data-toggle="tooltip" title="Edit"><button class="btn btn-default btn-xs" data-title="Edit" data-toggle="modal" data-target="#edit{{ mkl[0] }}"><span class="glyphicon glyphicon-pencil"></span></button></p></td>
-                      <td align="center"><p data-placement="top" data-toggle="tooltip" title="Delete"><button class="btn btn-default btn-xs" data-title="Delete" data-toggle="modal" data-target="#delete{{ mkl[0] }}"><span class="glyphicon glyphicon-trash"></span></button></p></td>
+                      <td align="center">{{ mkl[6] }}</td>
+                      <td align="center">{{ mkl[7] }}</td>
+                      <td align="center">
+                        <a href="#" data-placement="top" data-toggle="tooltip" title="Detail"><button class="btn btn-default btn-xs" data-title="Detail"><span class="glyphicon glyphicon-eye-open"></span></button></a>
+                        <button class="btn btn-default btn-xs" data-title="Edit" data-toggle="modal" data-target="#edit{{ mkl[0] }}" title="Edit"><span class="glyphicon glyphicon-pencil"></span></button>
+                        <button class="btn btn-default btn-xs" data-title="Delete" data-toggle="modal" data-target="#delete{{ mkl[0] }}" title="Delete"><span class="glyphicon glyphicon-trash"></span></button>
+                      </td>
                     </tr>
                     {% endfor %}
                     {% else %}

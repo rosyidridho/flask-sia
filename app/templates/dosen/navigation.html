@@ -6,7 +6,7 @@
       <span class="icon-bar"></span>
       <span class="icon-bar"></span>
     </button>
-    <a class="navbar-brand" href="/admin">SIA ~ Dosen</a>
+    <a class="navbar-brand" href="/admin">SIA | {{univ}}</a>
   </div>
   <!-- /.navbar-header -->
 
@@ -34,12 +34,12 @@
         <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
       </a>
       <ul class="dropdown-menu dropdown-user">
-        <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
+        <li><a href="/dosen/profil"><i class="fa fa-user fa-fw"></i> Profil</a>
         </li>
-        <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
+        <li><a href="/dosen/ganti-password"<i class="fa fa-gear fa-fw"></i> Ganti Password</a>
         </li>
         <li class="divider"></li>
-        <li><a href="/logout"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+        <li><a href="/logout"><i class="fa fa-sign-out fa-fw"></i> Keluar</a>
         </li>
       </ul>
       <!-- /.dropdown-user -->
@@ -52,24 +52,39 @@
     <div class="sidebar-nav navbar-collapse">
       <ul class="nav" id="side-menu">
         <li class="sidebar-search" style="border-color: #d4d4d4;">
-          <div class="input-group custom-search-form">
-            <input type="text" class="form-control" placeholder="Search...">
-            <span class="input-group-btn">
-              <button class="btn btn-default" type="button">
-                <i class="fa fa-search"></i>
-              </button>
-            </span>
+          <div class="fotoprofil">
+            <a href="/dosen/profil">
+              <center>
+                <div class="foto-mhs-area">
+                  <div class="foto-mhs">
+                    <img src="../static/uploads/dsn/{{dsn[6]}}" alt="{{dsn[6]}}">
+                  </div>
+                </div>
+                <br>
+                Hei, <b>{{dsn[2]}}</b>
+              </center>
+            </a>
           </div>
-          <!-- /input-group -->
         </li>
         <li>
           <a href="/dosen"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
         </li>
         <li>
-          <a href="#"><i class="fa fa-dashboard fa-fw"></i> Mahasiswa</a>
+          <a href="/dosen/input-nilai"><i class="fa fa-list-alt fa-fw"></i> Input Nilai</a>
         </li>
         <li>
-          <a href="#"><i class="fa fa-dashboard fa-fw"></i> Kelas</a>
+          <a href="#"><i class="fa fa-university fa-fw"></i> Kelas</a>
+          <ul class="nav nav-second-level">
+            <li>
+              <a href="/dosen/kelas-dosen">Kelas Anda</a>
+            </li>
+            <li>
+              <a href="/dosen/tambah-kelas">Tambah Kelas</a>
+            </li>
+            <li>
+              <a href="#">###</a>
+            </li>
+          </ul>
         </li>
       </ul>
     </div>

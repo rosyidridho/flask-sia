@@ -6,7 +6,7 @@
       <span class="icon-bar"></span>
       <span class="icon-bar"></span>
     </button>
-    <a class="navbar-brand" href="/admin">Admin SIA</a>
+    <a class="navbar-brand" href="/admin">Admin SIA | {{univ}}</a>
   </div>
   <!-- /.navbar-header -->
 
@@ -34,12 +34,12 @@
         <i class="fa fa-user fa-fw"></i> <i class="fa fa-caret-down"></i>
       </a>
       <ul class="dropdown-menu dropdown-user">
-        <li><a href="#"><i class="fa fa-user fa-fw"></i> User Profile</a>
+        <li><a href="#"><i class="fa fa-user fa-fw"></i> Profil</a>
         </li>
-        <li><a href="#"><i class="fa fa-gear fa-fw"></i> Settings</a>
+        <li><a href="/admin/ganti-password"><i class="fa fa-gear fa-fw"></i> Ganti Password</a>
         </li>
         <li class="divider"></li>
-        <li><a href="/logout"><i class="fa fa-sign-out fa-fw"></i> Logout</a>
+        <li><a href="/logout"><i class="fa fa-sign-out fa-fw"></i> Keluar</a>
         </li>
       </ul>
       <!-- /.dropdown-user -->
@@ -66,22 +66,22 @@
           <a href="/admin"><i class="fa fa-dashboard fa-fw"></i> Dashboard</a>
         </li>
         <li>
-          <a href="/admin/fakultas"><i class="fa fa-dashboard fa-fw"></i> Fakultas</a>
+          <a href="/admin/fakultas"><i class="fa fa-th-large fa-fw"></i> Fakultas</a>
         </li>
         <li>
-          <a href="/admin/prodi"><i class="fa fa-dashboard fa-fw"></i> Prodi</a>
+          <a href="/admin/prodi"><i class="fa fa-th fa-fw"></i> Prodi</a>
         </li>
         <li>
-          <a href="/admin/mhs"><i class="fa fa-dashboard fa-fw"></i> Mahasiswa</a>
+          <a href="/admin/mhs"><i class="fa fa-graduation-cap fa-fw"></i> Mahasiswa</a>
         </li>
         <li>
-          <a href="/admin/dosen"><i class="fa fa-dashboard fa-fw"></i> Dosen</a>
+          <a href="/admin/dosen"><i class="fa fa-user-md fa-fw"></i> Dosen</a>
         </li>
         <li>
-          <a href="/admin/makul"><i class="fa fa-dashboard fa-fw"></i> Makul</a>
+          <a href="/admin/makul"><i class="fa fa-book fa-fw"></i> Makul</a>
         </li>
         <li>
-          <a href="/admin/kelas"><i class="fa fa-dashboard fa-fw"></i> Kelas</a>
+          <a href="/admin/kelas"><i class="fa fa-university fa-fw"></i> Kelas</a>
         </li>
         <li>
           <a href="#"><i class="fa fa-users fa-fw"></i> Kelola User<span class="fa arrow"></span></a>
@@ -96,6 +96,9 @@
               <a href="#">Mahasiswa</a>
             </li>
           </ul>
+          <li>
+            <a href="/admin/setting"><i class="fa fa-cog fa-fw"></i> Setting</a>
+          </li>
           <!-- /.nav-second-level -->
         </li>
 
