@@ -53,16 +53,16 @@
                     {% endwith %}
                     <thead>
                       <tr>
-                        <th>Id Nilai</th>
-                        <th>Kode MK</th>
-                        <th>Mata Kuliah</th>
-                        <th>SKS</th>
-                        <th>SMT</th>
-                        <th>Kelas</th>
-                        <th>Nilai</th>
-                        <th>Simbol</th>
-                        <th>Bobot</th>
-                        <th>Total</th>
+                        <th width="10%">Id Nilai</th>
+                        <th width="11%">Kode MK</th>
+                        <th width="30%">Mata Kuliah</th>
+                        <th width="7%">SKS</th>
+                        <th width="7%">SMT</th>
+                        <th width="7%">Kelas</th>
+                        <th width="7%">Nilai</th>
+                        <th width="7%">Simbol</th>
+                        <th width="7%">Bobot</th>
+                        <th width="7%">Total</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -85,6 +85,13 @@
                       <td colspan="10" style="text-align: center;">Tidak Ada Data</td>
                       {% endif %}
                     </tbody>
+                    <tfoot>
+                      <tr>
+                        <td align="center" colspan="4"><b>Total SKS: {{info_ipk[0]}}</b></td>
+                        <td align="center" colspan="3"><b>Total Nilai: {{info_ipk[1]}}</b></td>
+                        <td align="center" colspan="3"><b>IPK: {{info_ipk[2]}}</b></td>
+                      </tr>
+                    </tfoot>
                   </table>
                   <!-- /.table -->
                 </div>

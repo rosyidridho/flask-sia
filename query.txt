@@ -265,7 +265,7 @@ SELECT * FROM krs WHERE mhs_1=31
 
 CREATE VIEW khs
 AS
-SELECT tb_nilai.nil_1, tb_makul.mkl_1, tb_makul.mkl_2, tb_makul.mkl_3, tb_makul.mkl_4, tb_kelas.kls_2, tb_nilai.nil_4, tb_nilai.nil_2, tb_nilai.nil_3, tb_nilai.nil_5, tb_nilai.nil_6, tb_nilai.nil_7, tb_nilai.nil_8, tb_ambil_kls.mhs_1, tb_ambil_kls.abl_kls_2, tb_ambil_kls.abl_kls_3
+SELECT tb_nilai.nil_1, tb_makul.mkl_1, tb_makul.mkl_2, tb_makul.mkl_3, tb_makul.mkl_4, tb_kelas.kls_2, tb_nilai.nil_4, tb_nilai.nil_2, tb_nilai.nil_3, tb_nilai.nil_5, tb_nilai.nil_6, tb_nilai.nil_7, tb_nilai.nil_9, tb_nilai.nil_8, tb_ambil_kls.mhs_1, tb_ambil_kls.abl_kls_2, tb_ambil_kls.abl_kls_3
 FROM tb_nilai INNER JOIN tb_ambil_kls ON tb_nilai.abl_kls_1=tb_ambil_kls.abl_kls_1
 INNER JOIN tb_kelas ON tb_ambil_kls.kls_1=tb_kelas.kls_1
 INNER JOIN tb_makul ON tb_kelas.mkl_1=tb_makul.mkl_1
@@ -274,16 +274,18 @@ select * from khs where mhs_1=29
 
 CREATE VIEW pilih_kelas
 AS
-SELECT tb_pengampu.dsn_1, tb_kelas.kls_2, tb_makul.mkl_2, tb_prodi.prodi_2, tb_kelas.kls_1
+SELECT tb_pengampu.dsn_1, tb_kelas.kls_2, tb_makul.mkl_2, tb_prodi.prodi_2, tb_kelas.kls_1, tb_makul.mkl_3, tb_makul.mkl_4
 FROM tb_pengampu INNER JOIN tb_kelas ON tb_pengampu.kls_1=tb_kelas.kls_1
 INNER JOIN tb_makul ON tb_kelas.mkl_1=tb_makul.mkl_1
 INNER JOIN tb_prodi ON tb_makul.prodi_1=tb_prodi.prodi_1 order by tb_makul.mkl_2
 
 SELECT * FROM pilih_kelas where dsn_1=7
 
+drop view pilih_kelas
+
 CREATE VIEW input_nilai
 AS
-SELECT tb_mhs.mhs_2, tb_mhs.mhs_3, tb_nilai.nil_4, tb_nilai.nil_2, tb_nilai.nil_3, tb_nilai.nil_5, tb_nilai.nil_6, tb_nilai.nil_7, tb_nilai.nil_8, tb_nilai.nil_1, tb_ambil_kls.mhs_1, tb_ambil_kls.kls_1, tb_ambil_kls.abl_kls_2, tb_ambil_kls.abl_kls_3
+SELECT tb_mhs.mhs_2, tb_mhs.mhs_3, tb_nilai.nil_4, tb_nilai.nil_2, tb_nilai.nil_3, tb_nilai.nil_5, tb_nilai.nil_6, tb_nilai.nil_7, tb_nilai.nil_9, tb_nilai.nil_8, tb_nilai.nil_1, tb_ambil_kls.mhs_1, tb_ambil_kls.kls_1, tb_ambil_kls.abl_kls_2, tb_ambil_kls.abl_kls_3
 FROM tb_nilai INNER JOIN tb_ambil_kls ON tb_nilai.abl_kls_1=tb_ambil_kls.abl_kls_1
 INNER JOIN tb_mhs ON tb_ambil_kls.mhs_1=tb_mhs.mhs_1
 

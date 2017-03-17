@@ -11,6 +11,7 @@ from control import *
 conn = koneksi
 mhs_direktori = app.config['UPLOAD_FOLDER']+"mhs/"
 dsn_direktori = app.config['UPLOAD_FOLDER']+"dsn/"
+logo_direktori = app.config['UPLOAD_FOLDER']+"logo/"
 
 def datetime_now():
     return datetime.utcnow()
@@ -121,7 +122,8 @@ def login():
     session.pop('id_user', None)
     session.pop('id_mahas', None)
     session.pop('id_dosen', None)
-    return render_template('login.html')
+    log=logo()
+    return render_template('login.html', logo=log)
 
 @app.route('/logout')
 def loguot():
@@ -135,7 +137,8 @@ def loguot():
 @admin_role
 def admin():
     universitas = nm_univ()
-    return render_template('admin/home.html', univ=universitas)
+    log = logo()
+    return render_template('admin/home.html', univ=universitas, logo=log)
 
 @app.route('/admin/setting', methods=['GET', 'POST'])
 @read_session
@@ -146,6 +149,8 @@ def setting():
         nama_universitas = request.form['nm_univ']
         ajaran = request.form['ajaran']
         smstr = request.form['smstr']
+        krs = request.form['krs']
+        log = logo()
 
         if id_set != "kosong":
             cursor = conn.cursor()
@@ -155,8 +160,8 @@ def setting():
             cursor.close()
 
         cursor = conn.cursor()
-        query = """INSERT INTO tb_setting (set_2, set_3, set_4, set_5, set_6) VALUES (%s, %s, %s, %s, %s)"""
-        cursor.execute(query, (nama_universitas, ajaran, smstr, 1, datetime_now()))
+        query = """INSERT INTO tb_setting (set_2, set_3, set_4, set_5, set_6, set_7, set_8) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
+        cursor.execute(query, (nama_universitas, ajaran, smstr, 1, datetime_now(), log, krs))
         conn.commit()
         cursor.close()
         flash ('Setting Berhasil Disimpan!')
@@ -167,8 +172,32 @@ def setting():
     cursor.execute(query)
     data = cursor.fetchall()
     cursor.close()
+    log = logo()
     universitas = nm_univ()
-    return render_template('admin/setting.html', setting=data, univ=universitas)
+    return render_template('admin/setting.html', setting=data, univ=universitas, logo=log)
+
+@app.route('/admin/setting-logo', methods={'POST'})
+@read_session
+@admin_role
+def setting_logo():
+    if request.method == 'POST':
+        file = request.files['logo']
+        id_set = request.form['id_set']
+        if file and allowed_file(file.filename):
+            img_name = secure_filename(file.filename)
+            file.save(os.path.join(logo_direktori, img_name))
+
+            cursor = conn.cursor()
+            query = """UPDATE tb_setting SET set_7=%s WHERE set_1=%s"""
+            cursor.execute(query, (img_name, id_set))
+            conn.commit()
+            cursor.close()
+
+            flash('Logo Berhasil Upload!')
+            return redirect(url_for('setting'))
+        else:
+            flash ('Ekstensi gambar tidak diperbolehkan!')
+            return redirect(url_for('setting'))
 
 @app.route('/admin/fakultas', methods=['GET', 'POST'])
 @read_session
@@ -192,8 +221,9 @@ def fakultas():
     cursor.execute(query)
     data = cursor.fetchall()
     cursor.close()
+    log = logo()
     universitas = nm_univ()
-    return render_template('admin/fakultas.html', fakultas=data, univ=universitas)
+    return render_template('admin/fakultas.html', fakultas=data, univ=universitas, logo=log)
 
 @app.route('/admin/edit-fakultas', methods=['POST'])
 @read_session
@@ -256,8 +286,10 @@ def prodi():
     cursor.execute(query)
     data2 = cursor.fetchall()
     cursor.close()
+
+    log = logo()
     universitas = nm_univ()
-    return render_template('admin/prodi.html', prodi=data1, fakultas=data2, univ=universitas)
+    return render_template('admin/prodi.html', prodi=data1, fakultas=data2, univ=universitas, logo=log)
 
 @app.route('/admin/edit-prodi', methods=['POST'])
 @read_session
@@ -326,9 +358,9 @@ def mhs():
     else:
         nim = year_now()+"1"
 
+    log = logo()
     universitas = nm_univ()
-
-    return render_template('admin/mhs.html', mhs=data, fklts_prodi=data1, nim=nim, univ=universitas)
+    return render_template('admin/mhs.html', mhs=data, fklts_prodi=data1, nim=nim, univ=universitas, logo=log)
 
 def ins_mhs(nim, nama, id_prodi, tmpt_lhr, tgl_lhr, alamat, file):
     try:
@@ -457,9 +489,9 @@ def dosen():
     else:
         nid = "DSN"+year_now()+"1"
 
+    log = logo()
     universitas = nm_univ()
-
-    return render_template('admin/dosen.html', dosen=data, nid=nid, univ=universitas)
+    return render_template('admin/dosen.html', dosen=data, nid=nid, univ=universitas, logo=log)
 
 def ins_dsn(nid, nama, tmpt_lhr, tgl_lhr, alamat, file):
     try:
@@ -587,8 +619,9 @@ def makul():
     data1 = cursor.fetchall()
     cursor.close()
 
+    log = logo()
     universitas = nm_univ()
-    return render_template('admin/makul.html', makul=data, fklts_prodi=data1, univ=universitas)
+    return render_template('admin/makul.html', makul=data, fklts_prodi=data1, univ=universitas, logo=log)
 
 @app.route('/admin/edit-makul', methods=['POST'])
 @read_session
@@ -653,8 +686,9 @@ def kelas():
     data1 = cursor.fetchall()
     cursor.close()
 
+    log = logo()
     universitas = nm_univ()
-    return render_template('admin/kelas.html', kelas=data, prodi_makul=data1, univ=universitas)
+    return render_template('admin/kelas.html', kelas=data, prodi_makul=data1, univ=universitas, logo=log)
 
 @app.route('/admin/edit-kelas', methods=['POST'])
 @read_session
@@ -716,8 +750,9 @@ def ganti_pass_admin():
                 flash ('Password Anda Telah Diperbarui!')
         return redirect(url_for('ganti_pass_admin'))
 
+    log = logo()
     universitas = nm_univ()
-    return render_template('admin/ganti-password.html', univ=universitas)
+    return render_template('admin/ganti-password.html', univ=universitas, logo=log)
 
 @app.route('/mhs')
 @read_session
@@ -725,16 +760,18 @@ def ganti_pass_admin():
 def dash_mhs():
 
     data = profil_mhs(session['id_mahas'])
+    log = logo()
     universitas = nm_univ()
-    return render_template('mhs/home.html', univ=universitas, mhs=data)
+    return render_template('mhs/home.html', univ=universitas, mhs=data, logo=log)
 
 @app.route('/mhs/profil')
 @read_session
 @mhs_role
 def profil_mahasiswa():
     data = profil_mhs(session['id_mahas'])
+    log = logo()
     universitas = nm_univ()
-    return render_template('mhs/profil.html', univ=universitas, mhs=data)
+    return render_template('mhs/profil.html', univ=universitas, mhs=data, logo=log)
 
 @app.route('/mhs/khs')
 @read_session
@@ -745,10 +782,11 @@ def khs():
     cursor.execute(query)
     data = cursor.fetchall()
     cursor.close()
-
+    data2=hitung_ipk(data)
     data1 = profil_mhs(session['id_mahas'])
+    log = logo()
     universitas = nm_univ()
-    return render_template('mhs/khs.html', univ=universitas, khs=data, mhs=data1)
+    return render_template('mhs/khs.html', univ=universitas, khs=data, mhs=data1, info_ipk=data2, logo=log)
 
 @app.route('/mhs/krs', methods=['GET', 'POST'])
 @read_session
@@ -770,15 +808,19 @@ def krs():
         flash ('Data '+id_abl_kls+' Berhasil Dihapus!')
         return redirect(url_for('krs'))
 
-    cursor = conn.cursor()
-    query = """SELECT * FROM krs WHERE mhs_1=%s AND abl_kls_2=%s AND abl_kls_3=%s"""
-    cursor.execute(query, (session['id_mahas'], thn_ajaran(), smstr()))
-    data = cursor.fetchall()
-    cursor.close()
-
-    data1 = profil_mhs(session['id_mahas'])
     universitas = nm_univ()
-    return render_template('mhs/krs.html', univ=universitas, krs=data, mhs=data1)
+    log = logo()
+    data1 = profil_mhs(session['id_mahas'])
+    if status_krs() == 1:
+        cursor = conn.cursor()
+        query = """SELECT * FROM krs WHERE mhs_1=%s AND abl_kls_2=%s AND abl_kls_3=%s"""
+        cursor.execute(query, (session['id_mahas'], thn_ajaran(), smstr()))
+        data = cursor.fetchall()
+        cursor.close()
+
+        return render_template('mhs/krs.html', univ=universitas, krs=data, mhs=data1, logo=log)
+    else:
+        return render_template('mhs/krs-tutup.html', univ=universitas, mhs=data1, logo=log)
 
 @app.route('/mhs/add-krs', methods=['GET', 'POST'])
 @read_session
@@ -803,30 +845,33 @@ def add_krs():
 
         return redirect(url_for('add_krs'))
 
-    cursor = conn.cursor()
-    query = """SELECT * FROM add_krs WHERE prodi_1=%s""" % (prodi_mhs(session['id_mahas']))
-    cursor.execute(query)
-    data = cursor.fetchall()
-    cursor.close()
-
-    data1=()
-
-    if smstr() == "GANJIL":
-        for d in data:
-            if (d[4] % 2) == 1:
-                data1 = data1 + (d,)
-    elif smstr() == 'GENAP':
-        for d in data:
-            if (d[4] % 2) == 0:
-                data1 = data1 + (d,)
-    elif smstr() == "SP":
-        for d in data:
-            if d[4] is "SP":
-                data1 = data1 + (d,)
-
-    data2 = profil_mhs(session['id_mahas'])
     universitas = nm_univ()
-    return render_template('mhs/add-krs.html', univ=universitas, krs=data1, mhs=data2)
+    log = logo()
+    data2 = profil_mhs(session['id_mahas'])
+    if status_krs() == 1:
+        cursor = conn.cursor()
+        query = """SELECT * FROM add_krs WHERE prodi_1=%s""" % (prodi_mhs(session['id_mahas']))
+        cursor.execute(query)
+        data = cursor.fetchall()
+        cursor.close()
+
+        data1=()
+
+        if smstr() == "GANJIL":
+            for d in data:
+                if (d[4] % 2) == 1:
+                    data1 = data1 + (d,)
+        elif smstr() == 'GENAP':
+            for d in data:
+                if (d[4] % 2) == 0:
+                    data1 = data1 + (d,)
+        elif smstr() == "SP":
+            for d in data:
+                if d[4] is "SP":
+                    data1 = data1 + (d,)
+        return render_template('mhs/add-krs.html', univ=universitas, krs=data1, mhs=data2, logo=log)
+    else:
+        return render_template('mhs/krs-tutup.html', univ=universitas, mhs=data2)
 
 def check_ambil_kls_ganda(id_kls, id_mhs):
     tahun_ajaran = thn_ajaran()
@@ -867,24 +912,27 @@ def ganti_pass_mhs():
         return redirect(url_for('ganti_pass_mhs'))
 
     data = profil_mhs(session['id_mahas'])
+    log = logo()
     universitas = nm_univ()
-    return render_template('mhs/ganti-password.html', univ=universitas, mhs=data)
+    return render_template('mhs/ganti-password.html', univ=universitas, mhs=data, logo=log)
 
 @app.route('/dosen')
 @read_session
 @dosen_role
 def dash_dosen():
     data = profil_dsn(session['id_dosen'])
+    log = logo()
     universitas = nm_univ()
-    return render_template('dosen/home.html', univ=universitas, dsn=data)
+    return render_template('dosen/home.html', univ=universitas, dsn=data, logo=log)
 
 @app.route('/dosen/profil')
 @read_session
 @dosen_role
 def profil_dosen():
     data = profil_dsn(session['id_dosen'])
+    log = logo()
     universitas = nm_univ()
-    return render_template('dosen/profil.html', univ=universitas, dsn=data)
+    return render_template('dosen/profil.html', univ=universitas, dsn=data, logo=log)
 
 @app.route('/dosen/kelas-dosen')
 @read_session
@@ -898,8 +946,9 @@ def kelas_dosen():
     cursor.close()
 
     data1 = profil_dsn(session['id_dosen'])
+    log = logo()
     universitas = nm_univ()
-    return render_template('dosen/kelas-dosen.html', kelas_dosen=data, univ=universitas, dsn=data1)
+    return render_template('dosen/kelas-dosen.html', kelas_dosen=data, univ=universitas, dsn=data1, logo=log)
 
 @app.route('/dosen/tambah-kelas', methods=['GET', 'POST'])
 @read_session
@@ -945,8 +994,9 @@ def tambah_kelas():
     cursor.close()
 
     data1 = profil_dsn(session['id_dosen'])
+    log = logo()
     universitas = nm_univ()
-    return render_template('dosen/tambah-kelas.html', tambah_kelas=data, univ=universitas, dsn=data1)
+    return render_template('dosen/tambah-kelas.html', tambah_kelas=data, univ=universitas, dsn=data1, logo=log)
 
 def check_kelas_ganda(idd):
     cursor = conn.cursor()
@@ -993,8 +1043,9 @@ def pilih_kelas():
     cursor.close()
 
     data1 = profil_dsn(session['id_dosen'])
+    log = logo()
     universitas = nm_univ()
-    return render_template('dosen/pilih-kelas.html', pilih_kelas=data, dsn=data1, univ=universitas)
+    return render_template('dosen/pilih-kelas.html', pilih_kelas=data, dsn=data1, univ=universitas, logo=log)
 
 @app.route('/dosen/input-nilai/<kls>', methods=['GET', 'POST'])
 @read_session
@@ -1034,8 +1085,9 @@ def input_nilai(kls):
 
     data3 = info_pilih_kelas(kls)
     data1 = profil_dsn(session['id_dosen'])
+    log = logo()
     universitas = nm_univ()
-    return render_template('dosen/input-nilai.html', dsn=data1, mhs=data2, univ=universitas, kls=kls, info_kelas=data3)
+    return render_template('dosen/input-nilai.html', dsn=data1, mhs=data2, univ=universitas, kls=kls, info_kelas=data3, logo=log)
 
 @app.route('/dosen/ganti-password', methods=['GET', 'POST'])
 @read_session
@@ -1062,5 +1114,6 @@ def ganti_pass_dsn():
         return redirect(url_for('ganti_pass_dsn'))
 
     data = profil_dsn(session['id_dosen'])
+    log = logo()
     universitas = nm_univ()
-    return render_template('dosen/ganti-password.html', univ=universitas, dsn=data)
+    return render_template('dosen/ganti-password.html', univ=universitas, dsn=data, logo=log)

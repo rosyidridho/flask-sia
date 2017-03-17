@@ -38,6 +38,30 @@ def smstr():
         sem = d[0]
     return sem
 
+def logo():
+    image = ""
+    cursor = koneksi.cursor()
+    query = """SELECT set_7 FROM tb_setting WHERE set_5=%s""" % (aktiv)
+    cursor.execute(query)
+    data = cursor.fetchall()
+    cursor.close()
+
+    for d in data:
+        image = d[0]
+    return image
+
+def status_krs():
+    status = 0
+    cursor = koneksi.cursor()
+    query = """SELECT set_8 FROM tb_setting WHERE set_5=%s""" % (aktiv)
+    cursor.execute(query)
+    data = cursor.fetchall()
+    cursor.close()
+
+    for d in data:
+        status = d[0]
+    return status
+
 def prodi_mhs(idd):
     prodi_id = 0
     cursor = koneksi.cursor()
@@ -124,3 +148,16 @@ def hitung_nilai_mhs(tugas, uts, uas, kehadiran, sks):
     total = bobot*sks
     data = data + (nilai, simbol, bobot, total)
     return data
+
+def hitung_ipk(data):
+    sks=0.0
+    total =0.0
+    ipk =0.0
+    hasil=()
+    for d in data:
+        sks = sks+int(d[3])
+        total = total+int(d[13])
+
+    ipk=total/sks
+    hasil=hasil=(sks, total, ipk)
+    return hasil
