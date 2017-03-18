@@ -1,6 +1,6 @@
 #SIA (Sistem Informasi Akademik) dengan Flask (micro web framework Python)
 ---
-![image](https://www.dropbox.com/sh/di5a8685p13kd15/AAAwgkmNBZaeLU9dgBjywaG6a?dl=0&preview=screencapture-localhost-admin-1489830381901.png)
+![image](https://photos-4.dropbox.com/t/2/AAALYa_Qgil6n9PKnhO5B5hFMFV2aQpR56ZuN3H5HSw3Iw/12/538547643/png/32x32/3/1489849200/0/2/screencapture-localhost-admin-1489830381901.png/EI6pwKcEGM0jIAIoAg/sOTsYS2b4qO0puClGr0saI8GzR5p1htfor_x_G7bbYs?dl=0&size=1280x960&size_mode=3)
 
 # Cara Install SIA
 ---
