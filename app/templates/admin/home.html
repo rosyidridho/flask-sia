@@ -19,9 +19,180 @@
       <div class="container-fluid">
         <div class="row">
           <div class="col-lg-12">
-            <h1 class="page-header">Blank</h1>
+            <h1 class="page-header">Dashboard</h1>
           </div>
           <!-- /.col-lg-12 -->
+        </div>
+        <!-- /.row -->
+        <div class="row">
+          <div class="col-lg-6 col-md-6">
+            <div class="panel panel-primary">
+              <div class="panel-heading">
+                <div class="row">
+                  <div class="col-xs-1">
+                    <i class="fa fa-th-large fa-5x"></i>
+                  </div>
+                  <div class="col-xs-11 text-right">
+                    <div class="huge">Fakultas</div>
+                    <div>Jumlah Fakultas <b>{{fakultas[0]}}</b></div>
+                    <div>
+                      Aktivitas Terbaru <b>{{fakultas[2]}}</b>
+                    </div>
+                    <div>
+                      Pada <b>{{fakultas[3]}}</b>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <a href="/admin/fakultas">
+                <div class="panel-footer">
+                  <span class="pull-left">Buka Fakultas</span>
+                  <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                  <div class="clearfix"></div>
+                </div>
+              </a>
+            </div>
+          </div>
+          <div class="col-lg-6 col-md-6">
+            <div class="panel panel-green">
+              <div class="panel-heading">
+                <div class="row">
+                  <div class="col-xs-1">
+                    <i class="fa fa-th fa-5x"></i>
+                  </div>
+                  <div class="col-xs-11 text-right">
+                    <div class="huge">Prodi</div>
+                    <div>Jumlah Prodi <b>{{prodi[0]}}</b></div>
+                    <div>
+                      Aktivitas Terbaru <b>{{prodi[3]}}</b>
+                    </div>
+                    <div>
+                      Pada <b>{{prodi[4]}}</b>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <a href="/admin/prodi">
+                <div class="panel-footer">
+                  <span class="pull-left">Buka Prodi</span>
+                  <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                  <div class="clearfix"></div>
+                </div>
+              </a>
+            </div>
+          </div>
+          <div class="col-lg-6 col-md-6">
+            <div class="panel panel-yellow">
+              <div class="panel-heading">
+                <div class="row">
+                  <div class="col-xs-1">
+                    <i class="fa fa-graduation-cap fa-5x"></i>
+                  </div>
+                  <div class="col-xs-11 text-right">
+                    <div class="huge">Mahasiswa</div>
+                    <div>Jumlah Mahasiswa <b>{{mhs[0]}}</b></div>
+                    <div>
+                      Aktivitas Terbaru <b>({{mhs[2]}}) {{mhs[3]}}</b>
+                    </div>
+                    <div>
+                      Pada <b>{{mhs[9]}}</b>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <a href="/admin/mhs">
+                <div class="panel-footer">
+                  <span class="pull-left">View Details</span>
+                  <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                  <div class="clearfix"></div>
+                </div>
+              </a>
+            </div>
+          </div>
+          <div class="col-lg-6 col-md-6">
+            <div class="panel panel-red">
+              <div class="panel-heading">
+                <div class="row">
+                  <div class="col-xs-1">
+                    <i class="fa fa-user-md fa-5x"></i>
+                  </div>
+                  <div class="col-xs-11 text-right">
+                    <div class="huge">Dosen</div>
+                    <div>Jumlah Dosen <b>{{dosen[0]}}</b></div>
+                    <div>
+                      Aktivitas Terbaru <b>({{dosen[2]}}) {{dosen[3]}}</b>
+                    </div>
+                    <div>
+                      Pada <b>{{dosen[8]}}</b>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <a href="/admin/dosen">
+                <div class="panel-footer">
+                  <span class="pull-left">View Details</span>
+                  <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                  <div class="clearfix"></div>
+                </div>
+              </a>
+            </div>
+          </div>
+          <div class="col-lg-6 col-md-6">
+            <div class="panel panel-green">
+              <div class="panel-heading">
+                <div class="row">
+                  <div class="col-xs-1">
+                    <i class="fa fa-book fa-5x"></i>
+                  </div>
+                  <div class="col-xs-11 text-right">
+                    <div class="huge">Makul</div>
+                    <div>Jumlah Makul <b>{{makul[0]}}</b></div>
+                    <div>
+                      Aktivitas Terbaru <b>{{makul[3]}}</b>
+                    </div>
+                    <div>
+                      Pada <b>{{makul[6]}}</b>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <a href="/admin/makul">
+                <div class="panel-footer">
+                  <span class="pull-left">Buka Prodi</span>
+                  <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                  <div class="clearfix"></div>
+                </div>
+              </a>
+            </div>
+          </div>
+          <div class="col-lg-6 col-md-6">
+            <div class="panel panel-primary">
+              <div class="panel-heading">
+                <div class="row">
+                  <div class="col-xs-1">
+                    <i class="fa fa-university fa-5x"></i>
+                  </div>
+                  <div class="col-xs-11 text-right">
+                    <div class="huge">Kelas</div>
+                    <div>Jumlah Kelas <b>{{kelas[0]}}</b></div>
+                    <div>
+                      Aktivitas Terbaru <b>{{kelas[2]}}</b>
+                    </div>
+                    <div>
+                      Pada <b>{{kelas[6]}}</b>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <a href="/admin/kelas">
+                <div class="panel-footer">
+                  <span class="pull-left">Buka Prodi</span>
+                  <span class="pull-right"><i class="fa fa-arrow-circle-right"></i></span>
+                  <div class="clearfix"></div>
+                </div>
+              </a>
+            </div>
+          </div>
         </div>
         <!-- /.row -->
       </div>

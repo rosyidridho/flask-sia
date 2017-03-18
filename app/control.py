@@ -118,27 +118,29 @@ def hitung_nilai_mhs(tugas, uts, uas, kehadiran, sks):
     ut = 0.35
     ua = 0.35
     khdran = 0.1
-    nilai=0
+    nilai=0.0
+    max_hadir= 14.0
     simbol = ""
     bobot = 0
     total = 0
     data = ()
-    nilai = (tugas * tgs)+(uts*ut)+(uas*ua)+(kehadiran/14*100*khdran)
-
-    print "nilai="+str(nilai)
-    if nilai >= 80:
+    nilai = (tugas * tgs)+(uts*ut)+(uas*ua)+(kehadiran / max_hadir * 100.0 * khdran)
+    nilai = "{0:.2f}".format(nilai)
+    nil = float(nilai)
+    
+    if nil >= 80 :
         simbol = "A"
         bobot = 4
-    elif nilai >= 60:
+    elif nil >= 60:
         simbol = "B"
         bobot = 3
-    elif nilai >= 40:
+    elif nil >= 40:
         simbol = "C"
         bobot = 2
-    elif nilai >= 20:
+    elif nil >= 20:
         simbol = "D"
         bobot = 1
-    elif nilai >= 1:
+    elif nil >= 1:
         simbol = "E"
         bobot = 0
     else:
@@ -160,4 +162,26 @@ def hitung_ipk(data):
 
     ipk=total/sks
     hasil=hasil=(sks, total, ipk)
+    return hasil
+
+def get_info(nm_tabel, kolom_tgl):
+    terbaru=()
+    jumlah=()
+    hasil=()
+    cursor = koneksi.cursor()
+    query = """SELECT COUNT(%s) FROM %s""" % (kolom_tgl, nm_tabel)
+    cursor.execute(query)
+    data1 = cursor.fetchall()
+    query = """SELECT * FROM %s ORDER BY %s DESC""" % (nm_tabel, kolom_tgl)
+    cursor.execute(query)
+    data2 = cursor.fetchall()
+    cursor.close()
+
+    for i in data1:
+        jumlah = jumlah + (i)
+        break
+    for i in data2:
+        terbaru = jumlah + (i)
+        break
+    hasil = hasil + (terbaru)
     return hasil

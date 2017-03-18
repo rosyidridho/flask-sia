@@ -7,6 +7,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 from config import *
 import os
 from control import *
+from model import *
 
 conn = koneksi
 mhs_direktori = app.config['UPLOAD_FOLDER']+"mhs/"
@@ -122,8 +123,9 @@ def login():
     session.pop('id_user', None)
     session.pop('id_mahas', None)
     session.pop('id_dosen', None)
+    universitas = nm_univ()
     log=logo()
-    return render_template('login.html', logo=log)
+    return render_template('login.html', logo=log, univ=universitas)
 
 @app.route('/logout')
 def loguot():
@@ -136,9 +138,16 @@ def loguot():
 @read_session
 @admin_role
 def admin():
+
+    fakultas =  get_info('tb_fakultas', 'fklts_3')
+    prodi = get_info('tb_prodi', 'prodi_3')
+    mahasiswa = get_info('tb_mhs', 'mhs_8')
+    dosen = get_info('tb_dosen', 'dsn_8')
+    makul = get_info('tb_makul', 'mkl_5')
+    kelas = get_info('tb_kelas', 'kls_5')
     universitas = nm_univ()
     log = logo()
-    return render_template('admin/home.html', univ=universitas, logo=log)
+    return render_template('admin/home.html', univ=universitas, logo=log, fakultas=fakultas, prodi=prodi, mhs=mahasiswa, dosen=dosen, makul=makul, kelas=kelas)
 
 @app.route('/admin/setting', methods=['GET', 'POST'])
 @read_session
@@ -777,12 +786,17 @@ def profil_mahasiswa():
 @read_session
 @mhs_role
 def khs():
+    data2=()
     cursor= conn.cursor()
     query = """SELECT * FROM khs WHERE mhs_1=%s""" % (session['id_mahas'])
     cursor.execute(query)
     data = cursor.fetchall()
     cursor.close()
-    data2=hitung_ipk(data)
+    if data == ():
+        data2=()
+    else:
+        data2=hitung_ipk(data)
+
     data1 = profil_mhs(session['id_mahas'])
     log = logo()
     universitas = nm_univ()
@@ -859,15 +873,11 @@ def add_krs():
 
         if smstr() == "GANJIL":
             for d in data:
-                if (d[4] % 2) == 1:
+                if (int(d[5]) % 2) == 1:
                     data1 = data1 + (d,)
         elif smstr() == 'GENAP':
             for d in data:
-                if (d[4] % 2) == 0:
-                    data1 = data1 + (d,)
-        elif smstr() == "SP":
-            for d in data:
-                if d[4] is "SP":
+                if (int(d[5]) % 2) == 0:
                     data1 = data1 + (d,)
         return render_template('mhs/add-krs.html', univ=universitas, krs=data1, mhs=data2, logo=log)
     else:
