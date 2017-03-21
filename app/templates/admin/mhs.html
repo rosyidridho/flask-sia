@@ -6,11 +6,10 @@
   {% include 'admin/head.html' %}
 
   <!-- DataTables CSS -->
-  <link href="../static/vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='vendor/datatables-plugins/dataTables.bootstrap.css') }}" rel="stylesheet">
 
   <!-- DataTables Responsive CSS -->
-  <link href="../static/vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet">
-
+  <link href="{{ url_for('static', filename='vendor/datatables-responsive/dataTables.responsive.css') }}" rel="stylesheet">
 </head>
 
 <body>
@@ -64,7 +63,7 @@
                     {% if mhs %}
                     {% for mh in mhs %}
                     <tr class="odd gradeX">
-                      <td align="center">{{ mh[0] }}</td>
+                      <td align="center">{{ loop.index }}</td>
                       <td align="center">{{ mh[1] }}</td>
                       <td>{{ mh[2] }}</td>
                       <td>{{ mh[3] }}</td>
@@ -259,12 +258,12 @@
   {% include 'admin/js.html' %}
 
   <!-- DataTables JavaScript -->
-  <script src="../static/vendor/datatables/js/jquery.dataTables.min.js"></script>
-  <script src="../static/vendor/datatables-plugins/dataTables.bootstrap.min.js"></script>
-  <script src="../static/vendor/datatables-responsive/dataTables.responsive.js"></script>
+  <script src="{{ url_for('static', filename='vendor/datatables/js/jquery.dataTables.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/datatables-plugins/dataTables.bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/datatables-responsive/dataTables.responsive.js') }}"></script>
 
   <!-- Custom Theme JavaScript -->
-  <script src="../static/dist/js/sb-admin-2.js"></script>
+  <script src="{{ url_for('static', filename='dist/js/sb-admin-2.js') }}"></script>
 
   <!-- Page-Level Demo Scripts - Tables - Use for reference -->
   <script>
@@ -274,5 +273,5 @@
     });
   });
   </script>
-
+</body>
 </html>

@@ -37,7 +37,7 @@
 
 1. Buat Database Baru
 
-2. Ubah koneksi pada file config.py
+2. Ubah koneksi database pada file config.json
 
 3. Eksekusi query database pada file query.txt (Manual) atau import 'Dump20170318.sql'
 

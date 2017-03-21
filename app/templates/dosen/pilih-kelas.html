@@ -5,10 +5,10 @@
   {% include 'dosen/head.html' %}
 
   <!-- DataTables CSS -->
-  <link href="../static/vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='vendor/datatables-plugins/dataTables.bootstrap.css') }}" rel="stylesheet">
 
   <!-- DataTables Responsive CSS -->
-  <link href="../static/vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='vendor/datatables-responsive/dataTables.responsive.css') }}" rel="stylesheet">
 
 </head>
 
@@ -52,7 +52,7 @@
                   {% endwith %}
                   <thead>
                     <tr>
-                      <th>Id</th>
+                      <th>No</th>
                       <th>Kelas</th>
                       <th>Mata Kuliah</th>
                       <th>Prodi</th>
@@ -61,12 +61,12 @@
                   <tbody>
                     {% if pilih_kelas %}
                     {% for pk in pilih_kelas %}
-                    <tr class="odd gradeX">
-                      <td align="center"><a href="/dosen/input-nilai/{{ pk[4] }}">{{ pk[4] }}</a></td>
-                      <td align="center">{{ pk[1] }}</td>
-                      <td>{{ pk[2] }}</td>
-                      <td>{{ pk[3] }}</td>
-                    </tr>
+                      <tr class="odd gradeX">
+                        <td align="center">{{ loop.index }}</td>
+                        <td align="center"><a href="/dosen/input-nilai/{{ pk[4] }}">{{ pk[1] }}</a></td>
+                        <td>{{ pk[2] }}</td>
+                        <td>{{ pk[3] }}</td>
+                      </tr>
                     {% endfor %}
                     {% else %}
                     <td colspan="10" style="text-align: center;">Tidak Ada Data</td>
@@ -94,12 +94,12 @@
   {% include 'dosen/js.html' %}
 
   <!-- DataTables JavaScript -->
-  <script src="../static/vendor/datatables/js/jquery.dataTables.min.js"></script>
-  <script src="../static/vendor/datatables-plugins/dataTables.bootstrap.min.js"></script>
-  <script src="../static/vendor/datatables-responsive/dataTables.responsive.js"></script>
+  <script src="{{ url_for('static', filename='vendor/datatables/js/jquery.dataTables.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/datatables-plugins/dataTables.bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/datatables-responsive/dataTables.responsive.js') }}"></script>
 
   <!-- Custom Theme JavaScript -->
-  <script src="../static/dist/js/sb-admin-2.js"></script>
+  <script src="{{ url_for('static', filename='dist/js/sb-admin-2.js') }}"></script>
 
   <!-- Page-Level Demo Scripts - Tables - Use for reference -->
   <script>
@@ -109,5 +109,5 @@
     });
   });
   </script>
-
+  </body>
   </html>

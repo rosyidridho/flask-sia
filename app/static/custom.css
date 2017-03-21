@@ -8,3 +8,16 @@
     -webkit-border-radius: 50%;
     border-radius: 50%;
 }
+.foto-mhs-area{
+  width:100%;
+  height:auto
+}
+.foto-mhs{
+  width:100%;
+  height:auto;
+  overflow:hidden
+}
+.foto-mhs img{
+  width:50%;
+  height: 50%
+}

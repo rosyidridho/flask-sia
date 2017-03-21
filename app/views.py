@@ -4,15 +4,15 @@ from app import *
 from datetime import datetime
 from werkzeug import secure_filename
 from werkzeug.security import generate_password_hash, check_password_hash
-from config import *
+from config import koneksi, ALLOWED_EXTENSIONS, UPLOAD_FOLDER
 import os
 from control import *
-from model import *
 
 conn = koneksi
-mhs_direktori = app.config['UPLOAD_FOLDER']+"mhs/"
-dsn_direktori = app.config['UPLOAD_FOLDER']+"dsn/"
-logo_direktori = app.config['UPLOAD_FOLDER']+"logo/"
+
+mhs_direktori = os.path.join(UPLOAD_FOLDER, "mhs")
+dsn_direktori = os.path.join(UPLOAD_FOLDER,"dsn")
+logo_direktori = os.path.join(UPLOAD_FOLDER,"logo")
 
 def datetime_now():
     return datetime.utcnow()
@@ -23,7 +23,8 @@ def year_now():
     return str(year)
 
 def allowed_file(filename):
-    return '.' in filename and filename.rsplit('.',1)[1] in app.config['ALLOWED_EXTENSIONS']
+    print ALLOWED_EXTENSIONS
+    return '.' in filename and filename.rsplit('.',1)[1] in ALLOWED_EXTENSIONS
 
 def read_session(f):
     @wraps(f)
@@ -388,6 +389,7 @@ def ins_mhs(nim, nama, id_prodi, tmpt_lhr, tgl_lhr, alamat, file):
                 img_name = secure_filename(file.filename)
                 file.save(os.path.join(mhs_direktori, img_name))
 
+
                 cursor = conn.cursor()
                 query = """INSERT INTO tb_mhs (mhs_2, mhs_3, prodi_1, mhs_4, mhs_5, mhs_6, mhs_7, mhs_8) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
                 cursor.execute(query, (nim, nama, id_prodi, tmpt_lhr, tgl_lhr, alamat, img_name, datetime_now()))
@@ -435,7 +437,8 @@ def edt_mhs(id_mhs, nim, nama, id_prodi, tmpt_lhr, tgl_lhr, alamat, file):
         else:
             if file and allowed_file(file.filename):
                 img_name = secure_filename(file.filename)
-                file.save(os.path.join(mhs_direktori, img_name))
+                file_dir = os.path.join(mhs_direktori, img_name)
+                file.save(file_dir)
 
                 cursor = conn.cursor()
                 query = """UPDATE tb_mhs SET mhs_3=%s, prodi_1=%s, mhs_4=%s, mhs_5=%s, mhs_6=%s, mhs_7=%s, mhs_8=%s WHERE mhs_1=%s"""

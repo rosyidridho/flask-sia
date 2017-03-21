@@ -1,4 +1,4 @@
-from config import *
+from config import koneksi
 
 aktiv = 1
 
@@ -127,7 +127,7 @@ def hitung_nilai_mhs(tugas, uts, uas, kehadiran, sks):
     nilai = (tugas * tgs)+(uts*ut)+(uas*ua)+(kehadiran / max_hadir * 100.0 * khdran)
     nilai = "{0:.2f}".format(nilai)
     nil = float(nilai)
-    
+
     if nil >= 80 :
         simbol = "A"
         bobot = 4

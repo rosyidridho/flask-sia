@@ -6,10 +6,10 @@
   {% include 'admin/head.html' %}
 
   <!-- DataTables CSS -->
-  <link href="../static/vendor/datatables-plugins/dataTables.bootstrap.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='vendor/datatables-plugins/dataTables.bootstrap.css') }}" rel="stylesheet">
 
   <!-- DataTables Responsive CSS -->
-  <link href="../static/vendor/datatables-responsive/dataTables.responsive.css" rel="stylesheet">
+  <link href="{{ url_for('static', filename='vendor/datatables-responsive/dataTables.responsive.css') }}" rel="stylesheet">
 
 </head>
 
@@ -49,7 +49,7 @@
                   {% endwith %}
                   <thead>
                     <tr>
-                      <th>id</th>
+                      <th>No</th>
                       <th>Nama Prodi</th>
                       <th style="wid;">Nama Fakultas</th>
                       <th>Action</th>
@@ -59,7 +59,7 @@
                     {% if prodi %}
                     {% for prd in prodi %}
                     <tr class="odd gradeX">
-                      <td align="center">{{ prd[0] }}</td>
+                      <td align="center">{{ loop.index }}</td>
                       <td>{{ prd[1] }}</td>
                       <td>{{ prd[3] }}</td>
                       <td align="center">
@@ -206,13 +206,13 @@
   {% include 'admin/js.html' %}
 
   <!-- DataTables JavaScript -->
-  <script src="../static/vendor/datatables/js/jquery.dataTables.min.js"></script>
-  <script src="../static/vendor/datatables-plugins/dataTables.bootstrap.min.js"></script>
-  <script src="../static/vendor/datatables-responsive/dataTables.responsive.js"></script>
+  <script src="{{ url_for('static', filename='vendor/datatables/js/jquery.dataTables.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/datatables-plugins/dataTables.bootstrap.min.js') }}"></script>
+  <script src="{{ url_for('static', filename='vendor/datatables-responsive/dataTables.responsive.js') }}"></script>
 
   <!-- Custom Theme JavaScript -->
-  <script src="../static/dist/js/sb-admin-2.js"></script>
-
+  <script src="{{ url_for('static', filename='dist/js/sb-admin-2.js') }}"></script>
+  
   <!-- Page-Level Demo Scripts - Tables - Use for reference -->
   <script>
   $(document).ready(function() {

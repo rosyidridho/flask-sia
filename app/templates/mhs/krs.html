@@ -53,7 +53,7 @@
                   {% endwith %}
                   <thead>
                     <tr>
-                      <th>Id</th>
+                      <th>No</th>
                       <th>Mata Kuliah</th>
                       <th>Dosen</th>
                       <th>Kelas</th>
@@ -66,7 +66,7 @@
                     {% if krs %}
                     {% for k in krs %}
                     <tr class="odd gradeX">
-                      <td>{{ k[0] }}</td>
+                      <td>{{ loop.index }}</td>
                       <td>{{ k[1] }}</td>
                       <td>{{ k[2] }}</td>
                       <td>{{ k[3] }}</td>
