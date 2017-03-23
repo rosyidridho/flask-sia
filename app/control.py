@@ -185,3 +185,44 @@ def get_info(nm_tabel, kolom_tgl):
         break
     hasil = hasil + (terbaru)
     return hasil
+
+def get_id_user(idd):
+    cursor = koneksi.cursor()
+    print "1"
+    print "SELECT usr_1 from tb_user WHERE usr_2='%s'" % (str(idd))
+    query = "SELECT usr_1 from tb_user WHERE usr_2='%s'" % (str(idd))
+    cursor.execute(query)
+    temp = cursor.fetchall()
+    cursor.close()
+    print "2"
+    for d in temp:
+        print "3"
+        data = d[0]
+        break
+    print "get user id"
+    print data
+    return data
+
+def get_id_mhs(idd):
+    cursor = koneksi.cursor()
+    query = """SELECT mhs_1 from tb_mhs WHERE usr_1=%s""" % (idd)
+    cursor.execute(query)
+    temp = cursor.fetchall()
+    cursor.close()
+
+    for t in temp:
+        data = t[0]
+        break
+    return data
+
+def get_id_dsn(idd):
+    cursor = koneksi.cursor()
+    query = """SELECT dsn_1 from tb_dosen WHERE usr_1=%s""" % (idd)
+    cursor.execute(query)
+    temp = cursor.fetchall()
+    cursor.close()
+
+    for t in temp:
+        data = t[0]
+        break
+    return data

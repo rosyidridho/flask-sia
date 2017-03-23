@@ -76,12 +76,15 @@ def cek_level(idd):
 
 def cek_pass_lama(idd, pass_lama):
     cursor = conn.cursor()
-    query = """SELECT * FROM tb_user WHERE usr_1=%s AND usr_3=%s"""
-    cursor.execute(query, (idd, pass_lama))
+    query = """SELECT usr_3 FROM tb_user WHERE usr_1=%s""" % (idd)
+    cursor.execute(query)
     data = cursor.fetchall()
     cursor.close()
 
-    return data
+    for d in data:
+        hasil = check_password_hash(d[0], pass_lama)
+        break
+    return hasil
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -90,36 +93,32 @@ def login():
         password = request.form['password']
 
         cursor = conn.cursor()
-        query = """SELECT * FROM tb_user WHERE usr_2=%s AND usr_3=%s"""
-        cursor.execute(query, (username, password))
+        query = """SELECT * FROM tb_user WHERE usr_2='%s' """ % (username)
+        cursor.execute(query)
         data = cursor.fetchall()
         cursor.close()
-
-        if data is ():
-            flash ('Username or Password is Incorrect')
+        if len(data) is 0:
+            flash ('Username Belum Terdaftar')
         else:
             for d in data:
-                if d[4] == 1:
-                    if d[3] == 1:
-                        session['id_user'] = d[0]
-                        #session['id_admin'] = d[5]
-                        return redirect(url_for('admin'))
-                    elif d[3] == 2:
-                        session['id_user'] = d[0]
-                        print session['id_user']
-                        session['id_mahas'] = d[5]
-                        print session['id_mahas']
-                        return redirect(url_for('dash_mhs'))
-                    elif d[3] == 3:
-                        session['id_user'] = d[0]
-                        print session['id_user']
-                        session['id_dosen'] = d[5]
-                        print session['id_dosen']
-                        return redirect(url_for('dash_dosen'))
+                cek = check_password_hash(d[2], password)
+                if cek:
+                    if d[4] == 1:
+                        if d[3] == 1:
+                            session['id_user'] = d[0]
+                            return redirect(url_for('admin'))
+                        elif d[3] == 2:
+                            session['id_user'] = d[0]
+                            return redirect(url_for('dash_mhs'))
+                        elif d[3] == 3:
+                            session['id_user'] = d[0]
+                            return redirect(url_for('dash_dosen'))
+                        else:
+                            flash ('Error Role of User')
                     else:
-                        flash ('Error Role of User')
+                        flash ('Silahkan Hubungi Admin Untuk Mengaktifkan Akun Anda')
                 else:
-                    flash ('Silahkan Hubungi Admin Untuk Mengaktifkan Akun Anda')
+                    flash ('Password Salah!')
 
     session.pop('id_user', None)
     session.pop('id_mahas', None)
@@ -377,8 +376,12 @@ def ins_mhs(nim, nama, id_prodi, tmpt_lhr, tgl_lhr, alamat, file):
         if file.filename == "":
             img_name="None"
             cursor = conn.cursor()
-            query = """INSERT INTO tb_mhs (mhs_2, mhs_3, prodi_1, mhs_4, mhs_5, mhs_6, mhs_7, mhs_8) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
-            cursor.execute(query, (nim, nama, id_prodi, tmpt_lhr, tgl_lhr, alamat, img_name, datetime_now()))
+            query = """INSERT INTO tb_user (usr_2, usr_3, usr_4, usr_5, usr_6) VALUES (%s, %s, 2, 1, %s)"""
+            cursor.execute(query, (nim, generate_password_hash(nim), datetime_now()))
+            conn.commit()
+            iduser = get_id_user(nim)
+            query = """INSERT INTO tb_mhs (mhs_2, mhs_3, prodi_1, mhs_4, mhs_5, mhs_6, mhs_7, mhs_8, usr_1) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+            cursor.execute(query, (nim, nama, id_prodi, tmpt_lhr, tgl_lhr, alamat, img_name, datetime_now(), iduser))
             conn.commit()
             cursor.close()
 
@@ -389,10 +392,13 @@ def ins_mhs(nim, nama, id_prodi, tmpt_lhr, tgl_lhr, alamat, file):
                 img_name = secure_filename(file.filename)
                 file.save(os.path.join(mhs_direktori, img_name))
 
-
                 cursor = conn.cursor()
-                query = """INSERT INTO tb_mhs (mhs_2, mhs_3, prodi_1, mhs_4, mhs_5, mhs_6, mhs_7, mhs_8) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
-                cursor.execute(query, (nim, nama, id_prodi, tmpt_lhr, tgl_lhr, alamat, img_name, datetime_now()))
+                query = """INSERT INTO tb_user (usr_2, usr_3, usr_4, usr_5, usr_6) VALUES (%s, %s, 2, 1, %s)"""
+                cursor.execute(query, (nim, generate_password_hash(nim), datetime_now()))
+                conn.commit()
+                iduser = get_id_user(nim)
+                query = """INSERT INTO tb_mhs (mhs_2, mhs_3, prodi_1, mhs_4, mhs_5, mhs_6, mhs_7, mhs_8, usr_1) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)"""
+                cursor.execute(query, (nim, nama, id_prodi, tmpt_lhr, tgl_lhr, alamat, img_name, datetime_now(), iduser))
                 conn.commit()
                 cursor.close()
 
@@ -402,7 +408,7 @@ def ins_mhs(nim, nama, id_prodi, tmpt_lhr, tgl_lhr, alamat, file):
                 flash ('Ekstensi gambar tidak diperbolehkan!')
                 return redirect(url_for('mhs'))
     except Exception as e:
-        return {'error': str(e)}
+        print e
 
 @app.route('/admin/edit-mhs', methods=['POST'])
 @read_session
@@ -510,8 +516,12 @@ def ins_dsn(nid, nama, tmpt_lhr, tgl_lhr, alamat, file):
         if file.filename == "":
             img_name="None"
             cursor = conn.cursor()
-            query = """INSERT INTO tb_dosen (dsn_2, dsn_3,dsn_4, dsn_5, dsn_6, dsn_7, dsn_8) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
-            cursor.execute(query, (nid, nama, tmpt_lhr, tgl_lhr, alamat, img_name, datetime_now()))
+            query = """INSERT INTO tb_user (usr_2, usr_3, usr_4, usr_5, usr_6) VALUES (%s, %s, 3, 1, %s)"""
+            cursor.execute(query, (nid, generate_password_hash(nid), datetime_now()))
+            conn.commit()
+            iduser = get_id_user(nid)
+            query = """INSERT INTO tb_dosen (dsn_2, dsn_3, dsn_4, dsn_5, dsn_6, dsn_7, dsn_8, usr_1) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
+            cursor.execute(query, (nid, nama, tmpt_lhr, tgl_lhr, alamat, img_name, datetime_now(), iduser))
             conn.commit()
             cursor.close()
 
@@ -523,8 +533,13 @@ def ins_dsn(nid, nama, tmpt_lhr, tgl_lhr, alamat, file):
                 file.save(os.path.join(dsn_direktori, img_name))
 
                 cursor = conn.cursor()
-                query = """INSERT INTO tb_dosen (dsn_2, dsn_3,dsn_4, dsn_5, dsn_6, dsn_7, dsn_8) VALUES (%s, %s, %s, %s, %s, %s, %s)"""
-                cursor.execute(query, (nid, nama, tmpt_lhr, tgl_lhr, alamat, img_name, datetime_now()))
+                query = """INSERT INTO tb_user (usr_2, usr_3, usr_4, usr_5, usr_6) VALUES (%s, %s, 3, 1, %s)"""
+                cursor.execute(query, (nid, generate_password_hash(nid), datetime_now()))
+                conn.commit()
+                iduser = get_id_user(str(nid))
+                cursor = conn.cursor()
+                query = """INSERT INTO tb_dosen (dsn_2, dsn_3, dsn_4, dsn_5, dsn_6, dsn_7, dsn_8, usr_1) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"""
+                cursor.execute(query, (nid, nama, tmpt_lhr, tgl_lhr, alamat, img_name, datetime_now(), iduser))
                 conn.commit()
                 cursor.close()
 
@@ -771,7 +786,7 @@ def ganti_pass_admin():
 @mhs_role
 def dash_mhs():
 
-    data = profil_mhs(session['id_mahas'])
+    data = profil_mhs(get_id_mhs(session['id_user']))
     log = logo()
     universitas = nm_univ()
     return render_template('mhs/home.html', univ=universitas, mhs=data, logo=log)
@@ -780,7 +795,7 @@ def dash_mhs():
 @read_session
 @mhs_role
 def profil_mahasiswa():
-    data = profil_mhs(session['id_mahas'])
+    data = profil_mhs(get_id_mhs(session['id_user']))
     log = logo()
     universitas = nm_univ()
     return render_template('mhs/profil.html', univ=universitas, mhs=data, logo=log)
@@ -791,7 +806,7 @@ def profil_mahasiswa():
 def khs():
     data2=()
     cursor= conn.cursor()
-    query = """SELECT * FROM khs WHERE mhs_1=%s""" % (session['id_mahas'])
+    query = """SELECT * FROM khs WHERE mhs_1=%s""" % (get_id_mhs(session['id_user']))
     cursor.execute(query)
     data = cursor.fetchall()
     cursor.close()
@@ -800,7 +815,7 @@ def khs():
     else:
         data2=hitung_ipk(data)
 
-    data1 = profil_mhs(session['id_mahas'])
+    data1 = profil_mhs(get_id_mhs(session['id_user']))
     log = logo()
     universitas = nm_univ()
     return render_template('mhs/khs.html', univ=universitas, khs=data, mhs=data1, info_ipk=data2, logo=log)
@@ -827,11 +842,11 @@ def krs():
 
     universitas = nm_univ()
     log = logo()
-    data1 = profil_mhs(session['id_mahas'])
+    data1 = profil_mhs(get_id_mhs(session['id_user']))
     if status_krs() == 1:
         cursor = conn.cursor()
         query = """SELECT * FROM krs WHERE mhs_1=%s AND abl_kls_2=%s AND abl_kls_3=%s"""
-        cursor.execute(query, (session['id_mahas'], thn_ajaran(), smstr()))
+        cursor.execute(query, (get_id_mhs(session['id_user']), thn_ajaran(), smstr()))
         data = cursor.fetchall()
         cursor.close()
 
@@ -844,7 +859,7 @@ def krs():
 @mhs_role
 def add_krs():
     if request.method == 'POST':
-        id_mhs = session['id_mahas']
+        id_mhs = get_id_mhs(session['id_user'])
         id_kls = request.form['id_kls']
         tahun_ajaran = thn_ajaran()
         semester = smstr()
@@ -864,10 +879,10 @@ def add_krs():
 
     universitas = nm_univ()
     log = logo()
-    data2 = profil_mhs(session['id_mahas'])
+    data2 = profil_mhs(get_id_mhs(session['id_user']))
     if status_krs() == 1:
         cursor = conn.cursor()
-        query = """SELECT * FROM add_krs WHERE prodi_1=%s""" % (prodi_mhs(session['id_mahas']))
+        query = """SELECT * FROM add_krs WHERE prodi_1=%s""" % (prodi_mhs(get_id_mhs(session['id_user'])))
         cursor.execute(query)
         data = cursor.fetchall()
         cursor.close()
@@ -907,24 +922,24 @@ def ganti_pass_mhs():
     if request.method == 'POST':
         pass_lama = request.form['pass_lama']
         pass_baru = request.form['pass_baru']
-        u_pass_baru = request.form['u_pass_baru']
-
-        if cek_pass_lama(session['id_user'], pass_lama) == ():
+        ulang_pass_baru = request.form['u_pass_baru']
+        print
+        if cek_pass_lama(session['id_user'], pass_lama) is False:
             flash ('Password Lama Anda Salah, Silahkan Masukkan Password Lama Anda Dengan Benar.')
         else:
-            if pass_baru != u_pass_baru:
-                flash ('Password Baru Anda Tidak Sama, Silahkan Ulangi.')
+            if pass_baru != ulang_pass_baru:
+                flash ('Password Anda Tidak Sama, Silahkan Ulangi.')
             else:
                 cursor = conn.cursor()
                 query = """UPDATE tb_user SET usr_3=%s WHERE usr_1=%s"""
-                cursor.execute(query, (pass_baru, session['id_user']))
+                cursor.execute(query, (generate_password_hash(pass_baru), session['id_user']))
                 conn.commit()
                 cursor.close()
 
                 flash ('Password Anda Telah Diperbarui!')
         return redirect(url_for('ganti_pass_mhs'))
 
-    data = profil_mhs(session['id_mahas'])
+    data = profil_mhs(get_id_mhs(session['id_user']))
     log = logo()
     universitas = nm_univ()
     return render_template('mhs/ganti-password.html', univ=universitas, mhs=data, logo=log)
@@ -933,7 +948,7 @@ def ganti_pass_mhs():
 @read_session
 @dosen_role
 def dash_dosen():
-    data = profil_dsn(session['id_dosen'])
+    data = profil_dsn(get_id_dsn(session['id_user']))
     log = logo()
     universitas = nm_univ()
     return render_template('dosen/home.html', univ=universitas, dsn=data, logo=log)
@@ -942,7 +957,7 @@ def dash_dosen():
 @read_session
 @dosen_role
 def profil_dosen():
-    data = profil_dsn(session['id_dosen'])
+    data = profil_dsn(get_id_dsn(session['id_user']))
     log = logo()
     universitas = nm_univ()
     return render_template('dosen/profil.html', univ=universitas, dsn=data, logo=log)
@@ -953,12 +968,12 @@ def profil_dosen():
 def kelas_dosen():
 
     cursor = conn.cursor()
-    query = """SELECT * FROM kelas_dosen WHERE dsn_1=%s""" % (session['id_dosen'])
+    query = """SELECT * FROM kelas_dosen WHERE dsn_1=%s""" % (get_id_dsn(session['id_user']))
     cursor.execute(query)
     data = cursor.fetchall()
     cursor.close()
 
-    data1 = profil_dsn(session['id_dosen'])
+    data1 = profil_dsn(get_id_dsn(session['id_user']))
     log = logo()
     universitas = nm_univ()
     return render_template('dosen/kelas-dosen.html', kelas_dosen=data, univ=universitas, dsn=data1, logo=log)
@@ -968,7 +983,7 @@ def kelas_dosen():
 @dosen_role
 def tambah_kelas():
     if request.method == 'POST':
-        id_dosen = session['id_dosen']
+        id_dosen = get_id_dsn(session['id_user'])
         id_kls = request.form['id_kls']
 
         if check_kelas_ganda(id_kls) is True:
@@ -1006,7 +1021,7 @@ def tambah_kelas():
     data = cursor.fetchall()
     cursor.close()
 
-    data1 = profil_dsn(session['id_dosen'])
+    data1 = profil_dsn(get_id_dsn(session['id_user']))
     log = logo()
     universitas = nm_univ()
     return render_template('dosen/tambah-kelas.html', tambah_kelas=data, univ=universitas, dsn=data1, logo=log)
@@ -1050,12 +1065,12 @@ def hapus_kelas():
 def pilih_kelas():
 
     cursor = conn.cursor()
-    query = """SELECT * FROM pilih_kelas WHERE dsn_1=%s""" % (session['id_dosen'])
+    query = """SELECT * FROM pilih_kelas WHERE dsn_1=%s""" % (get_id_dsn(session['id_user']))
     cursor.execute(query)
     data = cursor.fetchall()
     cursor.close()
 
-    data1 = profil_dsn(session['id_dosen'])
+    data1 = profil_dsn(get_id_dsn(session['id_user']))
     log = logo()
     universitas = nm_univ()
     return render_template('dosen/pilih-kelas.html', pilih_kelas=data, dsn=data1, univ=universitas, logo=log)
@@ -1097,7 +1112,7 @@ def input_nilai(kls):
     cursor.close()
 
     data3 = info_pilih_kelas(kls)
-    data1 = profil_dsn(session['id_dosen'])
+    data1 = profil_dsn(get_id_dsn(session['id_user']))
     log = logo()
     universitas = nm_univ()
     return render_template('dosen/input-nilai.html', dsn=data1, mhs=data2, univ=universitas, kls=kls, info_kelas=data3, logo=log)
@@ -1109,24 +1124,24 @@ def ganti_pass_dsn():
     if request.method == 'POST':
         pass_lama = request.form['pass_lama']
         pass_baru = request.form['pass_baru']
-        u_pass_baru = request.form['u_pass_baru']
+        ulang_pass_baru = request.form['u_pass_baru']
 
-        if cek_pass_lama(session['id_user'], pass_lama) == ():
+        if cek_pass_lama(session['id_user'], pass_lama) is False:
             flash ('Password Lama Anda Salah, Silahkan Masukkan Password Lama Anda Dengan Benar.')
         else:
-            if pass_baru != u_pass_baru:
+            if pass_baru != ulang_pass_baru:
                 flash ('Password Baru Anda Tidak Sama, Silahkan Ulangi.')
             else:
                 cursor = conn.cursor()
                 query = """UPDATE tb_user SET usr_3=%s WHERE usr_1=%s"""
-                cursor.execute(query, (pass_baru, session['id_user']))
+                cursor.execute(query, (generate_password_hash(pass_baru), session['id_user']))
                 conn.commit()
                 cursor.close()
 
                 flash ('Password Anda Telah Diperbarui!')
         return redirect(url_for('ganti_pass_dsn'))
 
-    data = profil_dsn(session['id_dosen'])
+    data = profil_dsn(get_id_dsn(session['id_user']))
     log = logo()
     universitas = nm_univ()
     return render_template('dosen/ganti-password.html', univ=universitas, dsn=data, logo=log)

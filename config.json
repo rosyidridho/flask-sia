@@ -4,10 +4,10 @@
   "veersion": "0.1",
   "license": "MIT",
   "db": {
-    "db_host":"host",
-      "db_user": "user",
-      "db_password": "pass",
-      "db_name": "db"
+    "db_host":"localhost",
+      "db_user": "root",
+      "db_password": "20022013",
+      "db_name": "coba"
   },
   "allowed_extensions": ["jpg", "JPG", "png", "PNG"],
   "upload_folder": "app/static/uploads/"
