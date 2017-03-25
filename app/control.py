@@ -226,3 +226,15 @@ def get_id_dsn(idd):
         data = t[0]
         break
     return data
+
+def get_id_abl_kls(id_mhs, id_kls, tahun_ajaran, semester):
+    cursor = koneksi.cursor()
+    query = """SELECT abl_kls_1 FROM tb_ambil_kls WHERE mhs_1=%s AND kls_1=%s AND abl_kls_2=%s AND abl_kls_3=%s"""
+    cursor.execute(query, (id_mhs, id_kls, tahun_ajaran, semester))
+    temp = cursor.fetchall()
+    cursor.close()
+
+    for t in temp:
+        data = t[0]
+        break
+    return data

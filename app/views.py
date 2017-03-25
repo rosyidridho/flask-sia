@@ -869,6 +869,13 @@ def add_krs():
             query = """INSERT INTO tb_ambil_kls (mhs_1, kls_1, abl_kls_2, abl_kls_3, abl_kls_4) VALUES (%s, %s, %s, %s, %s)"""
             cursor.execute(query, (id_mhs, id_kls, tahun_ajaran, semester, datetime_now()))
             conn.commit()
+            query = """UPDATE tb_kelas SET kls_4=(kls_4-1) WHERE kls_1=%s""" % (id_kls)
+            cursor.execute(query)
+            conn.commit()
+            id_abl_kls = get_id_abl_kls(id_mhs, id_kls, tahun_ajaran, semester)
+            query = """INSERT INTO tb_nilai (abl_kls_1, nil_2, nil_3, nil_4, nil_5, nil_6, nil_7, nil_8, nil_9) VALUES (%s, 0, 0, 0, 0, "0", "0", 0, "0")""" % (id_abl_kls)
+            cursor.execute(query)
+            conn.commit()
             cursor.close()
 
             flash ('Data KRS Berhasil Ditambah!')
@@ -996,8 +1003,6 @@ def tambah_kelas():
             cursor.close()
 
             session.pop('id_user', None)
-            session.pop('id_mhs', None)
-            session.pop('id_dosen', None)
         else:
             cursor = conn.cursor()
             query = """INSERT INTO tb_pengampu (dsn_1, kls_1, ampu_2) VALUES (%s, %s, %s)"""

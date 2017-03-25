@@ -17,9 +17,7 @@ END//
 DELIMITER;
 
 DELIMITER //
-CREATE TRIGGER after_ins_tb_ambil_kls
-AFTER INSERT ON tb_ambil_kls
-FOR EACH ROW
+CREATE PROCEDURE after_ins_tb_ambil_kls()
 BEGIN
 	UPDATE tb_kelas SET kls_4=(kls_4-1) WHERE kls_1=new.kls_1;
     INSERT INTO tb_nilai (abl_kls_1, nil_2, nil_3, nil_4, nil_5, nil_6, nil_7, nil_8, nil_9) VALUES (new.abl_kls_1, 0, 0, 0, 0, "0", "0", 0, "0");

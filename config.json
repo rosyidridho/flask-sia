@@ -4,10 +4,10 @@
   "veersion": "0.1",
   "license": "MIT",
   "db": {
-    "db_host":"localhost",
-      "db_user": "root",
-      "db_password": "20022013",
-      "db_name": "coba"
+    "db_host":"sql12.freemysqlhosting.net",
+      "db_user": "sql12165629",
+      "db_password": "ZElZdRl8EV",
+      "db_name": "sql12165629"
   },
   "allowed_extensions": ["jpg", "JPG", "png", "PNG"],
   "upload_folder": "app/static/uploads/"
