@@ -65,7 +65,6 @@ def dosen_role(f):
     return wrap
 
 def cek_level(idd):
-    global level
     cursor = conn.cursor()
     query = """SELECT usr_4 FROM tb_user WHERE usr_1=%s""" % (idd)
     cursor.execute(query)
