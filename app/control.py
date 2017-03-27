@@ -8,7 +8,6 @@ def nm_univ():
     query = """SELECT set_2 FROM tb_setting WHERE set_5=%s""" % (aktiv)
     cursor.execute(query)
     data = cursor.fetchall()
-    cursor.close()
 
     for d in data:
         univ = d[0]
@@ -20,7 +19,6 @@ def thn_ajaran():
     query = """SELECT set_3 FROM tb_setting WHERE set_5=%s""" % (aktiv)
     cursor.execute(query)
     data = cursor.fetchall()
-    cursor.close()
 
     for d in data:
         thn = d[0]
@@ -32,7 +30,6 @@ def smstr():
     query = """SELECT set_4 FROM tb_setting WHERE set_5=%s""" % (aktiv)
     cursor.execute(query)
     data = cursor.fetchall()
-    cursor.close()
 
     for d in data:
         sem = d[0]
@@ -44,7 +41,6 @@ def logo():
     query = """SELECT set_7 FROM tb_setting WHERE set_5=%s""" % (aktiv)
     cursor.execute(query)
     data = cursor.fetchall()
-    cursor.close()
 
     for d in data:
         image = d[0]
@@ -56,7 +52,6 @@ def status_krs():
     query = """SELECT set_8 FROM tb_setting WHERE set_5=%s""" % (aktiv)
     cursor.execute(query)
     data = cursor.fetchall()
-    cursor.close()
 
     for d in data:
         status = d[0]
@@ -68,7 +63,6 @@ def prodi_mhs(idd):
     query = """SELECT prodi_1 FROM tb_mhs WHERE mhs_1=%s""" % (idd)
     cursor.execute(query)
     data = cursor.fetchall()
-    cursor.close()
 
     for d in data:
         prodi_id = d[0]
@@ -80,7 +74,6 @@ def profil_mhs(idd):
     query = """SELECT * FROM profil_mhs WHERE mhs_1=%s""" % (idd)
     cursor.execute(query)
     temp = cursor.fetchall()
-    cursor.close()
 
     for i in temp:
         data = data + i
@@ -93,7 +86,6 @@ def profil_dsn(idd):
     query = """SELECT * FROM tb_dosen WHERE dsn_1=%s""" % (idd)
     cursor.execute(query)
     temp = cursor.fetchall()
-    cursor.close()
 
     for i in temp:
         data = data + i
@@ -106,7 +98,6 @@ def info_pilih_kelas(idd):
     query = """SELECT * FROM pilih_kelas WHERE kls_1=%s""" % (idd)
     cursor.execute(query)
     temp = cursor.fetchall()
-    cursor.close()
 
     for i in temp:
         data = data + i
@@ -175,7 +166,6 @@ def get_info(nm_tabel, kolom_tgl):
     query = """SELECT * FROM %s ORDER BY %s DESC""" % (nm_tabel, kolom_tgl)
     cursor.execute(query)
     data2 = cursor.fetchall()
-    cursor.close()
 
     for i in data1:
         jumlah = jumlah + (i)
@@ -188,19 +178,14 @@ def get_info(nm_tabel, kolom_tgl):
 
 def get_id_user(idd):
     cursor = koneksi.cursor()
-    print "1"
     print "SELECT usr_1 from tb_user WHERE usr_2='%s'" % (str(idd))
     query = "SELECT usr_1 from tb_user WHERE usr_2='%s'" % (str(idd))
     cursor.execute(query)
     temp = cursor.fetchall()
-    cursor.close()
-    print "2"
+
     for d in temp:
-        print "3"
         data = d[0]
         break
-    print "get user id"
-    print data
     return data
 
 def get_id_mhs(idd):
@@ -208,7 +193,6 @@ def get_id_mhs(idd):
     query = """SELECT mhs_1 from tb_mhs WHERE usr_1=%s""" % (idd)
     cursor.execute(query)
     temp = cursor.fetchall()
-    cursor.close()
 
     for t in temp:
         data = t[0]
@@ -220,7 +204,6 @@ def get_id_dsn(idd):
     query = """SELECT dsn_1 from tb_dosen WHERE usr_1=%s""" % (idd)
     cursor.execute(query)
     temp = cursor.fetchall()
-    cursor.close()
 
     for t in temp:
         data = t[0]
@@ -232,8 +215,7 @@ def get_id_abl_kls(id_mhs, id_kls, tahun_ajaran, semester):
     query = """SELECT abl_kls_1 FROM tb_ambil_kls WHERE mhs_1=%s AND kls_1=%s AND abl_kls_2=%s AND abl_kls_3=%s"""
     cursor.execute(query, (id_mhs, id_kls, tahun_ajaran, semester))
     temp = cursor.fetchall()
-    cursor.close()
-
+    
     for t in temp:
         data = t[0]
         break

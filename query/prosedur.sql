@@ -2,7 +2,7 @@ DELIMITER //
 CREATE PROCEDURE delete_mhs_usr (IN id_mhs INT)
 BEGIN
 DECLARE id_user int;
-SELECT tb_user.usr_1 INTO id_user FROM tb_user WHERE usr_6=id_mhs AND usr_4=2;
+SELECT tb_mhs.usr_1 INTO id_user FROM tb_mhs WHERE mhs_1=id_mhs;
 DELETE FROM tb_user WHERE usr_1=id_user;
 END//
 DELIMITER;
@@ -11,15 +11,7 @@ DELIMITER //
 CREATE PROCEDURE delete_dsn_usr (IN id_dosen INT)
 BEGIN
 DECLARE id_user int;
-SELECT tb_user.usr_1 INTO id_user FROM tb_user WHERE usr_6=id_dosen AND usr_4=3;
+SELECT tb_dosen.usr_1 INTO id_user FROM tb_dosen WHERE dsn_1=id_dosen;
 DELETE FROM tb_user WHERE usr_1=id_user;
-END//
-DELIMITER;
-
-DELIMITER //
-CREATE PROCEDURE after_ins_tb_ambil_kls()
-BEGIN
-	UPDATE tb_kelas SET kls_4=(kls_4-1) WHERE kls_1=new.kls_1;
-    INSERT INTO tb_nilai (abl_kls_1, nil_2, nil_3, nil_4, nil_5, nil_6, nil_7, nil_8, nil_9) VALUES (new.abl_kls_1, 0, 0, 0, 0, "0", "0", 0, "0");
 END//
 DELIMITER;

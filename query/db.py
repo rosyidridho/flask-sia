@@ -105,15 +105,15 @@ def create_prosedur():
 
 if __name__ =='__main__':
     try:
-        #print "Creating database..."
-        #create_database()
-        #print "Done."
-        #print "Creating table..."
-        #create_table()
-        #print "Done."
-        #print "Creating view..."
-        #create_view()
-        #print "Done."
+        print "Creating database..."
+        create_database()
+        print "Done."
+        print "Creating table..."
+        create_table()
+        print "Done."
+        print "Creating view..."
+        create_view()
+        print "Done."
         print "Creating procedure..."
         create_prosedur()
         print "Done."
